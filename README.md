@@ -43,6 +43,7 @@ Built as a CodeAlpha internship project.
 ```
 client/   React SPA — compact dark UI, single Tailwind v4 stylesheet
 server/   Express REST API under /api/v1 + Socket.IO event bus
+web/      Next.js landing page with GSAP motion and ProjectFlow product overview
 ```
 
 - **Auth:** short-lived JWT access tokens in memory/localStorage, rotating httpOnly refresh-token cookie (`pf_refresh`) with reuse detection that revokes the whole session family.
@@ -75,6 +76,19 @@ npm run dev          # SPA on http://localhost:5173
 ```
 
 Open http://localhost:5173, register an account, and create your first project.
+
+### 3. Public web landing page
+
+```bash
+cd web
+npm install
+npm run dev          # landing page on http://localhost:3000 (or the next available port)
+```
+
+The `web/` app is a standalone Next.js App Router project. It uses GSAP and
+ScrollTrigger for the hero sequence, pipeline animation, and scroll reveals.
+Its account links point to the existing `client/` app at `http://localhost:5173`
+by default. Set `NEXT_PUBLIC_APP_URL` when the client runs elsewhere.
 
 ### Production database
 
@@ -115,6 +129,9 @@ All settings live in `server/.env` (copy from `.env.example`). Never commit real
 | `npm run dev` | `client/` | Run Vite dev server |
 | `npm run build` | `client/` | Production build |
 | `npm run lint` | `client/` | ESLint |
+| `npm run dev` | `web/` | Run the Next.js public landing page |
+| `npm run build` | `web/` | Production build for the landing page |
+| `npm run lint` | `web/` | TypeScript validation |
 
 ## API Overview
 
