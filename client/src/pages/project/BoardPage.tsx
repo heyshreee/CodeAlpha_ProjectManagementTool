@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { api } from '@/lib/api';
 import type { Board, Task } from '@/types';
 import Spinner from '@/components/ui/Spinner';
@@ -50,10 +50,12 @@ function BoardColumn({
   column,
   tasks,
   onTaskClick,
+  autoOpenTaskInput = false,
 }: {
   column: { id: string; title: string; color?: string | null };
   tasks: Task[];
   onTaskClick: (task: Task) => void;
+  autoOpenTaskInput?: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const items = tasks.map((t) => t.id);
@@ -79,7 +81,7 @@ function BoardColumn({
           ))}
         </div>
       </SortableContext>
-      <NewTaskInput columnId={column.id} />
+      <NewTaskInput columnId={column.id} autoOpen={autoOpenTaskInput} />
     </div>
   );
 }
@@ -107,6 +109,13 @@ export default function BoardPage() {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
+  // Always reconcile optimistic drag state with freshly fetched data so edits
+  // made elsewhere (e.g. the task drawer, another tab, realtime events) show up
+  // immediately instead of being hidden behind an older one-time snapshot.
+  useEffect(() => {
+    if (data) setBoardState(data.columns as unknown as ColumnState[]);
+  }, [data]);
+
   const columns: ColumnState[] =
     boardState || (data?.columns as unknown as ColumnState[]) || [];
 
@@ -121,15 +130,35 @@ export default function BoardPage() {
     return columns.find((c) => c.id === id);
   }
 
+  // Keep the open drawer in sync with the live task so edits (title/status/
+  // assignee/due/labels) reflect in the slider immediately, not only after
+  // closing and reopening it.
+  useEffect(() => {
+    if (!selected) return;
+    const fresh = findTask(selected.id);
+    if (fresh && fresh !== selected) setSelected(fresh as Task);
+  }, [columns, selected]);
+
   // Restore a task opened via ?task= query.
   useMemo(() => {
     const tid = params.get('task');
-    if (tid && !selected) {
+    if (tid && tid !== 'new' && !selected) {
       const t = findTask(tid);
       if (t) setSelected(t as Task);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, params]);
+
+  // "New task" flows land on ?task=new — hand that to the first column's input.
+  const [newTaskIntent, setNewTaskIntent] = useState(() => params.get('task') === 'new');
+  useEffect(() => {
+    if (newTaskIntent) {
+      const next = new URLSearchParams(params);
+      next.delete('task');
+      setParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newTaskIntent]);
 
   if (isLoading) {
     return (
@@ -221,11 +250,12 @@ export default function BoardPage() {
         onDragCancel={() => setActiveTask(null)}
       >
         <div className="flex gap-4 flex-1 min-h-0 overflow-x-auto pb-2">
-          {columns.map((col) => (
+          {columns.map((col, i) => (
             <BoardColumn
               key={col.id}
               column={col}
               tasks={(col.tasks || []) as Task[]}
+              autoOpenTaskInput={i === 0 && newTaskIntent}
               onTaskClick={(t) => {
                 setSelected(t);
                 scrollToTask(t.id);
