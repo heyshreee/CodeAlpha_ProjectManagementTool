@@ -141,8 +141,8 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[15vh] px-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-xl bg-surface-2 border border-edge rounded-xl shadow-2xl animate-fade-in overflow-hidden">
-        <div className="flex items-center gap-3 px-4 border-b border-edge">
+      <div className="relative w-full max-w-xl bg-surface-2 border border-edge rounded-lg shadow-2xl animate-fade-in overflow-hidden">
+        <div className="flex items-center gap-2.5 px-3.5 border-b border-edge">
           <svg viewBox="0 0 24 24" className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.3-4.3" strokeLinecap="round" />
           </svg>
@@ -153,14 +153,14 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
             onKeyDown={onKeyDown}
             placeholder="Search tasks, projects, people — or jump to an action…"
             aria-label="Command palette search"
-            className="w-full bg-transparent py-3.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none"
+            className="w-full bg-transparent py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none"
           />
           <kbd className="shrink-0 inline-flex items-center rounded border border-edge px-1.5 py-0.5 text-[10px] text-slate-500">ESC</kbd>
         </div>
 
-        <div className="max-h-[50vh] overflow-y-auto py-2">
-          {loading && <div className="px-4 py-6 text-center text-sm text-slate-500">Searching…</div>}
-          {!loading && filtered.length === 0 && <div className="px-4 py-6 text-center text-sm text-slate-500">No commands or results found.</div>}
+        <div className="max-h-[50vh] overflow-y-auto py-1">
+          {loading && <div className="px-4 py-4 text-center text-sm text-slate-500">Searching…</div>}
+          {!loading && filtered.length === 0 && <div className="px-4 py-4 text-center text-sm text-slate-500">No commands or results found.</div>}
           {!loading && filtered.length > 0 && (
             <ul role="listbox" aria-label="Search results">
               {filtered.map((row, i) => (
@@ -170,7 +170,7 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
                     aria-selected={i === active}
                     onMouseEnter={() => setActive(i)}
                     onClick={() => select(row)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition ${
+                    className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-left text-[13px] transition ${
                       i === active ? 'bg-brand-600/15 text-brand-200' : 'text-slate-300'
                     }`}
                   >
@@ -191,7 +191,7 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
           )}
         </div>
 
-        <div className="px-4 py-2 border-t border-edge flex items-center gap-4 text-[10px] text-slate-600">
+        <div className="px-3.5 py-1.5 border-t border-edge flex items-center gap-4 text-[10px] text-slate-600">
           <span><kbd className="border border-edge rounded px-1">↑</kbd> <kbd className="border border-edge rounded px-1">↓</kbd> navigate</span>
           <span><kbd className="border border-edge rounded px-1.5">↵</kbd> open</span>
           <span><kbd className="border border-edge rounded px-1.5">esc</kbd> close</span>

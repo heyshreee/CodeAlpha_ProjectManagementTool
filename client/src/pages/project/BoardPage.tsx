@@ -62,20 +62,20 @@ function BoardColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`w-72 shrink-0 rounded-xl border flex flex-col transition-colors ${
+      className={`w-72 shrink-0 rounded-lg border flex flex-col transition-colors ${
         isOver ? 'border-brand-500/50 bg-brand-600/5' : 'border-edge bg-surface-2/50'
       }`}
     >
-      <div className="flex items-center gap-2 px-3 py-2.5">
+      <div className="flex items-center gap-2 px-3 py-2">
         <span
-          className="w-2.5 h-2.5 rounded-full"
+          className="w-2 h-2 rounded-full"
           style={{ background: column.color || '#6366f1' }}
         />
-        <span className="text-sm font-semibold text-slate-200">{column.title}</span>
+        <span className="text-[13px] font-semibold text-slate-200">{column.title}</span>
         <span className="text-xs text-slate-500 ml-auto">{tasks.length}</span>
       </div>
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        <div className="px-2 pb-2 space-y-2 flex-1 overflow-y-auto">
+        <div className="px-1.5 pb-1.5 space-y-1.5 flex-1 overflow-y-auto">
           {tasks.map((t) => (
             <SortableTask key={t.id} task={t} onClick={() => onTaskClick(t)} />
           ))}
@@ -163,7 +163,7 @@ export default function BoardPage() {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Spinner size={32} />
+        <Spinner size={24} />
       </div>
     );
   }
@@ -249,7 +249,7 @@ export default function BoardPage() {
         onDragEnd={onDragEnd}
         onDragCancel={() => setActiveTask(null)}
       >
-        <div className="flex gap-4 flex-1 min-h-0 overflow-x-auto pb-2">
+        <div className="flex gap-3 flex-1 min-h-0 overflow-x-auto pb-2">
           {columns.map((col, i) => (
             <BoardColumn
               key={col.id}
@@ -265,7 +265,7 @@ export default function BoardPage() {
         </div>
         <DragOverlay>
           {activeTask ? (
-            <div className="w-64 opacity-90">
+            <div className="w-72 opacity-90">
               <TaskCard task={activeTask} onClick={() => {}} />
             </div>
           ) : null}

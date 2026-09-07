@@ -58,11 +58,11 @@ export default function Register() {
         <Field label="Confirm password">
           <Input name="confirm" type="password" required placeholder="Re-enter password" autoComplete="new-password" />
         </Field>
-        <Button type="submit" className="w-full" disabled={loading} size="lg">
+        <Button type="submit" className="w-full" disabled={loading} size="md">
           {loading ? 'Creating account...' : 'Create account'}
         </Button>
       </form>
-      <p className="mt-5 text-center text-sm text-slate-400">
+      <p className="mt-4 text-center text-sm text-slate-400">
         Already have an account?{' '}
         <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium">
           Sign in

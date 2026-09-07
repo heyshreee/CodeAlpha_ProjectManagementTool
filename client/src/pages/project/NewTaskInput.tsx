@@ -41,7 +41,7 @@ export function NewTaskInput({ columnId, autoOpen = false }: { columnId: string;
     return (
       <button
         onClick={() => setOpen(true)}
-        className="m-2 text-sm text-slate-500 hover:text-brand-300 px-3 py-1.5 text-left rounded hover:bg-surface-3/50 transition"
+        className="m-1.5 text-[13px] text-slate-500 hover:text-brand-300 px-2.5 py-1.5 text-left rounded hover:bg-surface-3/50 transition"
       >
         + Add task
       </button>
@@ -49,21 +49,21 @@ export function NewTaskInput({ columnId, autoOpen = false }: { columnId: string;
   }
 
   return (
-    <div className="p-2 flex gap-1">
+    <div className="p-1.5 flex gap-1">
       <Input
         autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && submit()}
         placeholder="Task title"
-        className="py-1.5 text-sm"
+        className="py-1.5 text-[13px]"
       />
       {submitting ? (
         <span className="text-slate-500 px-2">…</span>
       ) : (
         <button
           onClick={submit}
-          className="text-sm text-brand-300 px-2 hover:text-brand-200"
+          className="text-[13px] text-brand-300 px-2 hover:text-brand-200"
           disabled={!title.trim()}
         >
           Add

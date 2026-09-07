@@ -45,8 +45,8 @@ function CreateProjectModal({ open, onClose }: { open: boolean; onClose: () => v
 
   return (
     <Modal open={open} onClose={onClose} title="Create a new project" footer={<Button form="create-project-form" type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create project'}</Button>}>
-      <form id="create-project-form" onSubmit={onSubmit} className="space-y-4">
-        {error && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2">{error}</div>}
+      <form id="create-project-form" onSubmit={onSubmit} className="space-y-3">
+        {error && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-md px-3 py-2">{error}</div>}
         <Field label="Project name">
           <Input name="name" required placeholder="e.g. Argus Header" />
         </Field>
@@ -74,48 +74,48 @@ export default function Projects() {
   }), [projects, query, filter]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1500px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+    <div className="p-4 sm:p-5 max-w-[1500px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-2">Your workspace</p>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-100">Projects</h1>
-          <p className="text-sm text-slate-400 mt-1">Organize work, align your team, and keep momentum visible.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-300 mb-1">Your workspace</p>
+          <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold tracking-tight text-slate-100">Projects</h1>
+          <p className="text-[13px] text-slate-400 mt-0.5">Organize work, align your team, and keep momentum visible.</p>
         </div>
         <Button onClick={() => setOpen(true)}>+ New project</Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
         <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search projects..." className="sm:max-w-sm" aria-label="Search projects" />
-        <div className="flex items-center gap-1 rounded-lg border border-edge bg-surface-2 p-1 w-fit">
-          {(['all', 'owned'] as const).map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${filter === item ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'}`}>{item === 'all' ? 'All projects' : 'Owned by me'}</button>)}
+        <div className="flex items-center gap-0.5 rounded-md border border-edge bg-surface-2 p-0.5 w-fit">
+          {(['all', 'owned'] as const).map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-3 py-1.5 rounded text-xs font-medium transition ${filter === item ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'}`}>{item === 'all' ? 'All projects' : 'Owned by me'}</button>)}
         </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-20"><Spinner size={32} /></div>
+        <div className="flex justify-center py-16"><Spinner size={24} /></div>
       ) : projects && projects.length === 0 ? (
-        <div className="bg-surface-2 border border-edge rounded-xl p-12 text-center text-slate-400">
-          <p className="mb-4">No projects yet.</p>
+        <div className="bg-surface-2 border border-edge rounded-lg p-10 text-center text-slate-400">
+          <p className="mb-3 text-sm">No projects yet.</p>
           <Button onClick={() => setOpen(true)}>Create your first project</Button>
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="bg-surface-2 border border-dashed border-edge rounded-xl p-12 text-center text-slate-500">No projects match your search.</div>
+        <div className="bg-surface-2 border border-dashed border-edge rounded-lg p-10 text-center text-sm text-slate-500">No projects match your search.</div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredProjects.map((p) => (
             <Link
               key={p.id}
               to={`/projects/${p.id}/board`}
-              className="bg-surface-2 border border-edge rounded-xl p-5 hover:border-brand-500/40 transition group"
+              className="bg-surface-2 border border-edge rounded-lg p-4 hover:border-brand-500/40 transition group"
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-2.5">
                 <span className="w-3 h-3 rounded-full" style={{ background: p.color || '#6366f1' }} />
-                <span className={`text-[11px] font-medium px-2 py-0.5 rounded border ${roleStyle[p.role || 'MEMBER']}`}>
+                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${roleStyle[p.role || 'MEMBER']}`}>
                   {p.role}
                 </span>
               </div>
-              <h3 className="font-semibold text-slate-100 group-hover:text-brand-300">{p.name}</h3>
-              {p.description && <p className="text-sm text-slate-400 mt-1 line-clamp-2">{p.description}</p>}
+              <h3 className="font-semibold text-[15px] text-slate-100 group-hover:text-brand-300 leading-snug">{p.name}</h3>
+              {p.description && <p className="text-[13px] text-slate-400 mt-1 line-clamp-2">{p.description}</p>}
               {(typeof p.completionRate === 'number') && (
                 <div className="mt-3">
                   <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden">
@@ -124,13 +124,13 @@ export default function Projects() {
                       style={{ width: `${p.completionRate}%`, background: p.completionRate === 100 ? '#34d399' : p.color || '#6366f1' }}
                     />
                   </div>
-                  <div className="text-xs text-slate-500 mt-1.5 flex items-center justify-between">
+                  <div className="text-xs text-slate-500 mt-1 flex items-center justify-between">
                     <span>{p.completedCount}/{p.taskCount} tasks</span>
                     <span className="text-slate-400 font-medium">{p.completionRate}%</span>
                   </div>
                 </div>
               )}
-              <div className="text-xs text-slate-500 mt-3 flex gap-4">
+              <div className="text-xs text-slate-500 mt-2.5 flex gap-4">
                 <span>{p._count?.tasks || p.taskCount || 0} tasks</span>
                 <span>{p._count?.members || 0} members</span>
               </div>

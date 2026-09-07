@@ -67,12 +67,12 @@ kbd {
   scrollbar-color: #334155 transparent;
 }
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 *::-webkit-scrollbar-thumb {
   background: #334155;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 *::-webkit-scrollbar-thumb:hover {
   background: #475569;
@@ -83,8 +83,8 @@ kbd {
 }
 
 .surface-grid {
-  background-image: linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px);
+  background-image: linear-gradient(rgb(255 255 255 / 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.02) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 

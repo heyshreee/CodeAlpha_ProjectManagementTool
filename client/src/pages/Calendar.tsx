@@ -50,7 +50,7 @@ function TaskPill({ t }: { t: CalTask }) {
   return (
     <Link
       to={`/projects/${t.projectId}/board?task=${t.id}`}
-      className={`block text-[10px] px-1 py-0.5 rounded truncate hover:opacity-80 ${
+      className={`block text-[10px] leading-4 px-1 py-0.5 rounded truncate hover:opacity-80 ${
         t.status === 'DONE' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-brand-600/20 text-brand-300'
       }`}
       title={t.title}
@@ -65,10 +65,10 @@ function TaskRow({ t, showProject = false }: { t: CalTask; showProject?: boolean
   return (
     <Link
       to={`/projects/${t.projectId}/board?task=${t.id}`}
-      className="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-3/60 border border-edge hover:border-brand-500/40 transition"
+      className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md bg-surface-3/60 border border-edge hover:border-brand-500/40 transition"
     >
       <span className="min-w-0 flex-1">
-        <span className="block text-sm text-slate-200 truncate">{t.title}</span>
+        <span className="block text-[13px] text-slate-200 truncate">{t.title}</span>
         {showProject && t.project && (
           <span className="block text-xs text-slate-500 mt-0.5 truncate">{t.project.name}</span>
         )}
@@ -135,15 +135,15 @@ export default function Calendar() {
   const agendaDays = Array.from({ length: 14 }, (_, i) => addDays(anchor, i));
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1500px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+    <div className="p-4 sm:p-5 max-w-[1500px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-1">Schedule</p>
-          <h1 className="text-xl font-bold text-slate-100">{title}</h1>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-300 mb-1">Schedule</p>
+          <h1 className="text-2xl leading-none font-semibold text-slate-100">{title}</h1>
         </div>
         <div className="flex items-center gap-2">
           <div
-            className="flex gap-1 rounded-lg border border-edge bg-surface-2 p-1"
+            className="flex gap-0.5 rounded-md border border-edge bg-surface-2 p-0.5"
             role="tablist"
             aria-label="Calendar view"
           >
@@ -153,7 +153,7 @@ export default function Calendar() {
                 role="tab"
                 aria-selected={view === v}
                 onClick={() => setView(v)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${
+                className={`rounded px-2.5 py-1.5 text-xs font-medium capitalize transition ${
                   view === v ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
@@ -161,24 +161,24 @@ export default function Calendar() {
               </button>
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <button
               onClick={() => navigate(-1)}
               aria-label="Previous"
-              className="px-3 py-1.5 bg-surface-3 border border-edge rounded-lg text-sm hover:bg-surface-3/70"
+              className="px-2.5 py-1.5 bg-surface-3 border border-edge rounded-md text-[13px] hover:bg-surface-3/70"
             >
               &larr;
             </button>
             <button
               onClick={() => setAnchor(startOfDay(new Date()))}
-              className="px-3 py-1.5 bg-surface-3 border border-edge rounded-lg text-sm hover:bg-surface-3/70"
+              className="px-2.5 py-1.5 bg-surface-3 border border-edge rounded-md text-[13px] hover:bg-surface-3/70"
             >
               Today
             </button>
             <button
               onClick={() => navigate(1)}
               aria-label="Next"
-              className="px-3 py-1.5 bg-surface-3 border border-edge rounded-lg text-sm hover:bg-surface-3/70"
+              className="px-2.5 py-1.5 bg-surface-3 border border-edge rounded-md text-[13px] hover:bg-surface-3/70"
             >
               &rarr;
             </button>
@@ -187,26 +187,26 @@ export default function Calendar() {
       </div>
 
       {isLoading && (
-        <div className="flex justify-center py-20">
-          <Spinner size={28} />
+        <div className="flex justify-center py-16">
+          <Spinner size={24} />
         </div>
       )}
       {isError && (
-        <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-10 text-center text-slate-300">
+        <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-8 text-center text-[13px] text-slate-300">
           We couldn&apos;t load your calendar. The backend may be unavailable.
         </div>
       )}
       {!isLoading && !isError && view === 'month' && (
         <>
-          <div className="grid grid-cols-7 gap-1 mb-1">
+          <div className="grid grid-cols-7 gap-1 mb-0.5">
             {DAY_NAMES.map((d) => (
-              <div key={d} className="text-center text-xs text-slate-500 py-1">{d}</div>
+              <div key={d} className="text-center text-[11px] text-slate-500 py-0.5">{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-1">
             {cells.map((day, i) => {
               if (day === null) {
-                return <div key={i} className="min-h-[90px] rounded-lg border border-transparent" />;
+                return <div key={i} className="min-h-[64px] rounded-md border border-transparent" />;
               }
               const date = new Date(year, month, day);
               const key = isoKey(date);
@@ -215,10 +215,10 @@ export default function Calendar() {
               return (
                 <div
                   key={i}
-                  className={`min-h-[90px] rounded-lg border p-1.5 bg-surface-2 border-edge ${isToday ? 'ring-1 ring-brand-500' : ''}`}
+                  className={`min-h-[64px] rounded-md border p-1 bg-surface-2 border-edge ${isToday ? 'ring-1 ring-brand-500' : ''}`}
                 >
-                  <div className={`text-xs font-medium mb-1 ${isToday ? 'text-brand-300' : 'text-slate-400'}`}>{day}</div>
-                  <div className="space-y-1">
+                  <div className={`text-[11px] font-medium leading-4 mb-0.5 ${isToday ? 'text-brand-300' : 'text-slate-400'}`}>{day}</div>
+                  <div className="space-y-0.5">
                     {tasks.slice(0, 3).map((t) => (
                       <TaskPill key={t.id} t={t} />
                     ))}
@@ -241,13 +241,13 @@ export default function Calendar() {
             return (
               <div
                 key={isoKey(d)}
-                className={`rounded-lg border p-2 bg-surface-2 border-edge min-h-[140px] ${isToday ? 'ring-1 ring-brand-500' : ''}`}
+                className={`rounded-md border p-1.5 bg-surface-2 border-edge min-h-[120px] ${isToday ? 'ring-1 ring-brand-500' : ''}`}
               >
-                <div className="mb-2">
+                <div className="mb-1">
                   <div className={`text-xs font-semibold ${isToday ? 'text-brand-300' : 'text-slate-300'}`}>{dayLabel(d)}</div>
                   <div className="text-[10px] text-slate-600">{sameMonth(d, anchor) ? '' : d.toLocaleDateString(undefined, { month: 'short' })}</div>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {tasks.map((t) => (
                     <TaskPill key={t.id} t={t} />
                   ))}
@@ -259,9 +259,9 @@ export default function Calendar() {
       )}
 
       {!isLoading && !isError && view === 'agenda' && (
-        <div className="overflow-hidden rounded-xl border border-edge bg-surface-2">
+        <div className="overflow-hidden rounded-lg border border-edge bg-surface-2">
           {agendaDays.every((d) => (byDay.get(isoKey(d)) || []).length === 0) && (
-            <div className="p-10 text-center text-sm text-slate-500">
+            <div className="p-8 text-center text-sm text-slate-500">
               No tasks with due dates in the next two weeks.
             </div>
           )}
@@ -271,14 +271,14 @@ export default function Calendar() {
             const isToday = isoKey(d) === isoKey(new Date());
             return (
               <div key={isoKey(d)} className="border-b border-edge last:border-0">
-                <div className="px-4 py-2 bg-surface-3/40 border-b border-edge flex items-center gap-2">
+                <div className="px-3 py-1.5 bg-surface-3/40 border-b border-edge flex items-center gap-2">
                   <span className={`text-xs font-semibold ${isToday ? 'text-brand-300' : 'text-slate-300'}`}>
                     {d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                   </span>
                   {isToday && <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 font-medium">Today</span>}
                   <span className="ml-auto text-xs text-slate-600">{tasks.length} task{tasks.length > 1 ? 's' : ''}</span>
                 </div>
-                <div className="p-2 space-y-1.5">
+                <div className="p-1.5 space-y-1">
                   {tasks.map((t) => (
                     <TaskRow key={t.id} t={t} showProject />
                   ))}

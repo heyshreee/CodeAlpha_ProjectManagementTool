@@ -116,96 +116,106 @@ export default function Settings() {
   ];
 
   return (
-    <div className="p-6 max-w-3xl space-y-6">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-2">Account</p>
-        <h1 className="text-xl font-bold text-slate-100">Settings</h1>
+    <div className="p-4 sm:p-5 max-w-4xl w-full">
+      <div className="mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-300 mb-1">Account</p>
+        <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold text-slate-100">Settings</h1>
       </div>
 
-      <div className="flex gap-1 rounded-lg border border-edge bg-surface-2 p-1 w-fit" role="tablist" aria-label="Settings sections">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${tab === t.id ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="flex flex-col lg:flex-row gap-4 lg:items-start">
+        <nav
+          className="flex gap-0.5 overflow-x-auto rounded-md border border-edge bg-surface-2 p-0.5 w-fit lg:w-48 lg:shrink-0 lg:flex-col lg:rounded-lg"
+          role="tablist"
+          aria-label="Settings sections"
+        >
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => setTab(t.id)}
+              className={`shrink-0 rounded px-3 py-1.5 text-[13px] font-medium transition lg:w-full lg:text-left ${
+                tab === t.id ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex-1 min-w-0">
+          {tab === 'profile' && (
+            <section className="bg-surface-2 border border-edge rounded-lg p-4 space-y-3" role="tabpanel">
+              <h2 className="text-[15px] font-semibold text-slate-200">Profile</h2>
+              <div className="flex items-center gap-3">
+                <Avatar name={user?.name} avatar={user?.avatar} size={64} />
+                <div>
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && onAvatar(e.target.files[0])} />
+                  <Button size="sm" variant="secondary" onClick={() => fileRef.current?.click()}>Change avatar</Button>
+                </div>
+              </div>
+              <Field label="Name">
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </Field>
+              <Field label="Bio">
+                <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} placeholder="Tell your team about yourself" />
+              </Field>
+              <div className="flex justify-end pt-1">
+                <Button onClick={saveProfile} disabled={saving}>{saving ? 'Saving...' : 'Save profile'}</Button>
+              </div>
+            </section>
+          )}
+
+          {tab === 'security' && (
+            <section className="bg-surface-2 border border-edge rounded-lg p-4 space-y-3" role="tabpanel">
+              <h2 className="text-[15px] font-semibold text-slate-200">Change password</h2>
+              {pwError && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-md px-3 py-2">{pwError}</div>}
+              <Field label="Current password">
+                <Input type="password" value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} autoComplete="current-password" />
+              </Field>
+              <Field label="New password">
+                <Input type="password" value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" />
+              </Field>
+              <Field label="Confirm new password">
+                <Input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} autoComplete="new-password" />
+              </Field>
+              <div className="flex justify-end pt-1">
+                <Button onClick={savePassword} disabled={pwSaving}>{pwSaving ? 'Updating...' : 'Update password'}</Button>
+              </div>
+            </section>
+          )}
+
+          {tab === 'appearance' && (
+            <section className="bg-surface-2 border border-edge rounded-lg p-4 space-y-3" role="tabpanel">
+              <h2 className="text-[15px] font-semibold text-slate-200">Accent color</h2>
+              <p className="text-[13px] text-slate-500">Applied across buttons, links, focus rings, and progress bars. Saved on this device.</p>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Accent color">
+                {ACCENTS.map((a) => {
+                  const selected = accent === a.id;
+                  return (
+                    <button
+                      key={a.id}
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => chooseAccent(a.id)}
+                      className={`flex flex-col items-center gap-1.5 w-14 py-2.5 rounded-lg border transition ${
+                        selected ? 'border-brand-500 bg-surface-3' : 'border-edge hover:border-slate-500'
+                      }`}
+                    >
+                      <span
+                        className="w-6 h-6 rounded-full"
+                        style={{ background: a.swatch, boxShadow: selected ? `0 0 0 2px #0b0d10, 0 0 0 3px ${a.swatch}` : 'none' }}
+                        aria-hidden="true"
+                      />
+                      <span className={`text-xs font-medium ${selected ? 'text-slate-100' : 'text-slate-500'}`}>{a.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
-
-      {tab === 'profile' && (
-        <section className="bg-surface-2 border border-edge rounded-xl p-5 space-y-4" role="tabpanel">
-          <h2 className="text-sm font-semibold text-slate-200">Profile</h2>
-          <div className="flex items-center gap-4">
-            <Avatar name={user?.name} avatar={user?.avatar} size={56} />
-            <div>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && onAvatar(e.target.files[0])} />
-              <Button size="sm" variant="secondary" onClick={() => fileRef.current?.click()}>Change avatar</Button>
-            </div>
-          </div>
-          <Field label="Name">
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
-          </Field>
-          <Field label="Bio">
-            <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} placeholder="Tell your team about yourself" />
-          </Field>
-          <div className="flex justify-end">
-            <Button onClick={saveProfile} disabled={saving}>{saving ? 'Saving...' : 'Save profile'}</Button>
-          </div>
-        </section>
-      )}
-
-      {tab === 'security' && (
-        <section className="bg-surface-2 border border-edge rounded-xl p-5 space-y-4" role="tabpanel">
-          <h2 className="text-sm font-semibold text-slate-200">Change password</h2>
-          {pwError && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2">{pwError}</div>}
-          <Field label="Current password">
-            <Input type="password" value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} autoComplete="current-password" />
-          </Field>
-          <Field label="New password">
-            <Input type="password" value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" />
-          </Field>
-          <Field label="Confirm new password">
-            <Input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} autoComplete="new-password" />
-          </Field>
-          <div className="flex justify-end">
-            <Button onClick={savePassword} disabled={pwSaving}>{pwSaving ? 'Updating...' : 'Update password'}</Button>
-          </div>
-        </section>
-      )}
-
-      {tab === 'appearance' && (
-        <section className="bg-surface-2 border border-edge rounded-xl p-5 space-y-4" role="tabpanel">
-          <h2 className="text-sm font-semibold text-slate-200">Accent color</h2>
-          <p className="text-xs text-slate-500">Applied across buttons, links, focus rings, and progress bars. Saved on this device.</p>
-          <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Accent color">
-            {ACCENTS.map((a) => {
-              const selected = accent === a.id;
-              return (
-                <button
-                  key={a.id}
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => chooseAccent(a.id)}
-                  className={`flex flex-col items-center gap-2 w-16 py-3 rounded-xl border transition ${
-                    selected ? 'border-brand-500 bg-surface-3' : 'border-edge hover:border-slate-500'
-                  }`}
-                >
-                  <span
-                    className="w-8 h-8 rounded-full"
-                    style={{ background: a.swatch, boxShadow: selected ? `0 0 0 2px #0b0d10, 0 0 0 4px ${a.swatch}` : 'none' }}
-                    aria-hidden="true"
-                  />
-                  <span className={`text-xs font-medium ${selected ? 'text-slate-100' : 'text-slate-500'}`}>{a.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

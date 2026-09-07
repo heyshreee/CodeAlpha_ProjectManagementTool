@@ -174,20 +174,20 @@ export function TaskDetail({
   return (
     <div className="fixed inset-0 z-40 flex justify-end" role="dialog" aria-modal="true" aria-label={`Task ${t.title}`}>
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-surface-2 border-l border-edge h-full flex flex-col animate-fade-in shadow-2xl">
-        <div className="px-5 py-3 border-b border-edge flex items-center justify-between">
+      <div className="relative w-full max-w-md bg-surface-2 border-l border-edge h-full flex flex-col animate-fade-in shadow-2xl">
+        <div className="px-4 py-2.5 border-b border-edge flex items-center justify-between">
           <span className="text-xs text-slate-500">TASK-{t.id.slice(-4).toUpperCase()}</span>
-          <button ref={closeRef} onClick={onClose} aria-label="Close task details" className="text-slate-400 hover:text-slate-200 text-xl">×</button>
+          <button ref={closeRef} onClick={onClose} aria-label="Close task details" className="text-slate-400 hover:text-slate-200 text-xl leading-none">×</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {canEdit ? (
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} onBlur={saveTitle} className="text-lg font-semibold" />
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} onBlur={saveTitle} className="text-base font-semibold" />
           ) : (
-            <h2 className="text-lg font-semibold text-slate-100">{t.title}</h2>
+            <h2 className="text-base font-semibold text-slate-100">{t.title}</h2>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2.5">
             <Field label="Status">
               <Select value={t.status} onChange={(e) => patch({ status: e.target.value })} disabled={!canEdit}>
                 {statuses.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
@@ -221,17 +221,17 @@ export function TaskDetail({
           </div>
 
           <div>
-            <span className="text-xs font-medium text-slate-400 block mb-2">Description</span>
+            <span className="text-xs font-medium text-slate-400 block mb-1.5">Description</span>
             {canEdit ? (
-              <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} onBlur={saveDesc} rows={4} placeholder="Add a description..." />
+              <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} onBlur={saveDesc} rows={3} placeholder="Add a description..." />
             ) : (
               <p className="text-sm text-slate-300 whitespace-pre-wrap">{t.description || 'No description.'}</p>
             )}
           </div>
 
           <div>
-            <span className="text-xs font-medium text-slate-400 block mb-2">Labels</span>
-            <div className="flex flex-wrap gap-2">
+            <span className="text-xs font-medium text-slate-400 block mb-1.5">Labels</span>
+            <div className="flex flex-wrap gap-1.5">
               {(labels || []).map((l: any) => {
                 const active = t.labels?.some((tl) => tl.label.id === l.id);
                 return (
@@ -239,7 +239,7 @@ export function TaskDetail({
                     key={l.id}
                     disabled={!canEdit}
                     onClick={() => toggleLabel(l.id)}
-                    className={`text-xs px-2 py-1 rounded border transition ${
+                    className={`text-[11px] px-2 py-1 rounded border transition ${
                       active ? 'font-medium' : 'opacity-50'
                     }`}
                     style={{ borderColor: `${l.color || '#8b5cf6'}77`, color: l.color || '#8b5cf6', background: `${l.color || '#8b5cf6'}18` }}
@@ -254,9 +254,9 @@ export function TaskDetail({
 
           {/* Attachments */}
           <div>
-            <span className="text-xs font-medium text-slate-400 block mb-2">Attachments</span>
+            <span className="text-xs font-medium text-slate-400 block mb-1.5">Attachments</span>
             {canEdit && (
-              <label className="block text-xs text-brand-400 cursor-pointer hover:text-brand-300 mb-2">
+              <label className="block text-xs text-brand-400 cursor-pointer hover:text-brand-300 mb-1.5">
                 + Upload file
                 <input
                   type="file"
@@ -265,9 +265,9 @@ export function TaskDetail({
                 />
               </label>
             )}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {(attachments || []).map((a) => (
-                <div key={a.id} className="flex items-center gap-2 bg-surface-3 border border-edge rounded-lg px-3 py-2 text-sm">
+                <div key={a.id} className="flex items-center gap-2 bg-surface-3 border border-edge rounded-md px-2.5 py-1.5 text-[13px]">
                   <span>📄</span>
                   <button
                     type="button"
@@ -286,31 +286,31 @@ export function TaskDetail({
 
           {/* Comments */}
           <div>
-            <span className="text-xs font-medium text-slate-400 block mb-2">Comments ({comments?.length || 0})</span>
-            <div className="space-y-3 mb-3">
+            <span className="text-xs font-medium text-slate-400 block mb-1.5">Comments ({comments?.length || 0})</span>
+            <div className="space-y-2 mb-2.5">
               {(comments || []).map((c) => (
-                <div key={c.id} className="flex gap-2.5">
-                  <Avatar name={c.user.name} avatar={c.user.avatar} size={28} />
-                  <div className="bg-surface-3/60 border border-edge rounded-lg px-3 py-2 flex-1">
+                <div key={c.id} className="flex gap-2">
+                  <Avatar name={c.user.name} avatar={c.user.avatar} size={24} />
+                  <div className="bg-surface-3/60 border border-edge rounded-md px-2.5 py-1.5 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-medium text-slate-200">{c.user.name}</span>
                       <span className="text-[10px] text-slate-500">{new Date(c.createdAt).toLocaleString()}</span>
                     </div>
-                    <p className="text-sm text-slate-300 mt-0.5 whitespace-pre-wrap">{c.content}</p>
+                    <p className="text-[13px] text-slate-300 mt-0.5 whitespace-pre-wrap">{c.content}</p>
                   </div>
                 </div>
               ))}
             </div>
             {canEdit && (
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <Input value={comment} onChange={(e) => setComment(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addComment()} placeholder="Write a comment..." />
-                <button onClick={addComment} className="px-3 py-2 text-sm bg-brand-600 hover:bg-brand-500 rounded-lg text-white" disabled={!comment.trim()}>Send</button>
+                <button onClick={addComment} className="px-2.5 py-1.5 text-[13px] bg-brand-600 hover:bg-brand-500 rounded-md text-white" disabled={!comment.trim()}>Send</button>
               </div>
             )}
           </div>
         </div>
 
-        <div className="px-5 py-3 border-t border-edge flex justify-between text-xs text-slate-500">
+        <div className="px-4 py-2.5 border-t border-edge flex justify-between text-xs text-slate-500">
           <span>Created {fmt(t.createdAt)}</span>
           {canEdit && (
             <button onClick={removeTask} className="text-rose-400 hover:text-rose-300">Delete task</button>

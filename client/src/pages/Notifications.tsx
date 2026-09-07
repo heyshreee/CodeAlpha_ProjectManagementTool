@@ -71,29 +71,53 @@ export default function Notifications() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto w-full">
-      <div className="flex items-end justify-between gap-4 mb-6">
-        <div><p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-2">Workspace activity</p><h1 className="text-2xl font-semibold text-slate-100">Notifications</h1><p className="text-sm text-slate-400 mt-1">Stay close to assignments, comments, and deadlines.</p></div>
+    <div className="p-4 sm:p-5 max-w-3xl mx-auto w-full">
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-300 mb-1">Workspace activity</p>
+          <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold text-slate-100">Notifications</h1>
+          <p className="text-[13px] text-slate-400 mt-0.5">Stay close to assignments, comments, and deadlines.</p>
+        </div>
         {!!data?.unreadCount && <Button variant="secondary" size="sm" onClick={markAllRead}>Mark all read</Button>}
       </div>
-      <div className="flex gap-1 overflow-x-auto rounded-lg border border-edge bg-surface-2 p-1 mb-5 w-fit">
+      <div className="flex gap-0.5 overflow-x-auto rounded-md border border-edge bg-surface-2 p-0.5 mb-4 w-fit">
         {filters.map((item) => (
           <button
             key={item.id}
             onClick={() => setFilter(item.id)}
-            className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition ${filter === item.id ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`shrink-0 rounded px-2.5 py-1.5 text-xs font-medium transition ${filter === item.id ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'}`}
           >
             {item.label}
           </button>
         ))}
       </div>
-      {isLoading && <div className="space-y-3">{[1, 2, 3].map((item) => <div key={item} className="h-20 rounded-xl bg-surface-2 border border-edge animate-pulse" />)}</div>}
-      {isError && <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-8 text-center"><p className="text-slate-200 font-medium">We couldn&apos;t load notifications.</p><button onClick={() => refetch()} className="mt-3 text-sm text-brand-300 hover:text-brand-200">Try again</button></div>}
-      {!isLoading && !isError && data?.notifications.length === 0 && <div className="rounded-xl border border-dashed border-edge p-12 text-center text-slate-500">You&apos;re all caught up.</div>}
+      {isLoading && <div className="space-y-2">{[1, 2, 3].map((item) => <div key={item} className="h-16 rounded-lg bg-surface-2 border border-edge animate-pulse" />)}</div>}
+      {isError && <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-6 text-center"><p className="text-slate-200 font-medium">We couldn&apos;t load notifications.</p><button onClick={() => refetch()} className="mt-2 text-sm text-brand-300 hover:text-brand-200">Try again</button></div>}
+      {!isLoading && !isError && data?.notifications.length === 0 && <div className="rounded-lg border border-dashed border-edge p-10 text-center text-sm text-slate-500">You&apos;re all caught up.</div>}
       {!isLoading && !isError && data && data.notifications.length > 0 && Object.values(groups).every((items) => items.length === 0) && (
-        <div className="rounded-xl border border-dashed border-edge p-12 text-center text-slate-500">Nothing in this view.</div>
+        <div className="rounded-lg border border-dashed border-edge p-10 text-center text-sm text-slate-500">Nothing in this view.</div>
       )}
-      {!isLoading && !isError && Object.entries(groups).map(([label, items]) => items.length > 0 && <section key={label} className="mb-7"><h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 mb-3">{label}</h2><div className="overflow-hidden rounded-xl border border-edge bg-surface-2">{items.map((notification) => <button key={notification.id} onClick={() => openNotification(notification)} className={`w-full flex items-start gap-3 text-left px-4 py-4 border-b last:border-b-0 border-edge hover:bg-surface-3/60 transition ${notification.status === 'UNREAD' ? 'bg-brand-500/5' : ''}`}><span className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${notification.status === 'UNREAD' ? 'bg-brand-400' : 'bg-slate-700'}`} /><span className="min-w-0 flex-1"><span className="block text-sm font-medium text-slate-200">{notification.title}</span>{notification.body && <span className="block text-sm text-slate-400 mt-1">{notification.body}</span>}<span className="block text-xs text-slate-600 mt-2">{new Date(notification.createdAt).toLocaleString()}</span></span></button>)}</div></section>)}
+      {!isLoading && !isError && Object.entries(groups).map(([label, items]) => items.length > 0 && (
+        <section key={label} className="mb-5">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 mb-2">{label}</h2>
+          <div className="overflow-hidden rounded-lg border border-edge bg-surface-2">
+            {items.map((notification) => (
+              <button
+                key={notification.id}
+                onClick={() => openNotification(notification)}
+                className={`w-full flex items-start gap-3 text-left px-3.5 py-2.5 border-b last:border-b-0 border-edge hover:bg-surface-3/60 transition ${notification.status === 'UNREAD' ? 'bg-brand-500/5' : ''}`}
+              >
+                <span className={`mt-1 h-2 w-2 rounded-full shrink-0 ${notification.status === 'UNREAD' ? 'bg-brand-400' : 'bg-slate-700'}`} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-medium text-slate-200">{notification.title}</span>
+                  {notification.body && <span className="block text-[13px] text-slate-400 mt-0.5">{notification.body}</span>}
+                  <span className="block text-[11px] text-slate-600 mt-1">{new Date(notification.createdAt).toLocaleString()}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

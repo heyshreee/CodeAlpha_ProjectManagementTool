@@ -68,10 +68,10 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative p-2 rounded-lg text-slate-400 hover:bg-surface-3 hover:text-slate-200 transition"
+        className="relative p-2 rounded-md text-slate-400 hover:bg-surface-3 hover:text-slate-200 transition"
         aria-label="Notifications"
       >
-        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8">
           <path d="M15 17h5l-1.4-2.2a4 4 0 01-.6-2.2V10a6 6 0 10-12 0v2.6a4 4 0 01-.6 2.2L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         {unread > 0 && (
@@ -82,9 +82,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-surface-2 border border-edge rounded-xl shadow-2xl z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-edge">
-            <span className="text-sm font-semibold text-slate-100">Notifications</span>
+        <div className="absolute right-0 mt-2 w-80 bg-surface-2 border border-edge rounded-lg shadow-2xl z-50 overflow-hidden">
+          <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-edge">
+            <span className="text-[13px] font-semibold text-slate-100">Notifications</span>
             {unread > 0 && (
               <button onClick={markAllRead} className="text-xs text-brand-400 hover:text-brand-300">
                 Mark all read
@@ -93,13 +93,13 @@ export default function NotificationBell() {
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 && (
-              <div className="text-sm text-slate-500 text-center py-8">No notifications yet</div>
+              <div className="text-[13px] text-slate-500 text-center py-6">No notifications yet</div>
             )}
             {notifications.map((n) => (
               <button
                 key={n.id}
                 onClick={() => openNotification(n)}
-                className={`w-full text-left px-4 py-3 hover:bg-surface-3/60 transition flex gap-3 ${
+                className={`w-full text-left px-3.5 py-2.5 hover:bg-surface-3/60 transition flex gap-2.5 ${
                   n.status === 'UNREAD' ? 'bg-brand-600/5' : ''
                 }`}
               >
@@ -109,7 +109,7 @@ export default function NotificationBell() {
                   }`}
                 />
                 <span className="min-w-0">
-                  <span className="block text-sm text-slate-200 font-medium">{n.title}</span>
+                  <span className="block text-[13px] text-slate-200 font-medium">{n.title}</span>
                   {n.body && <span className="block text-xs text-slate-400 truncate">{n.body}</span>}
                   <span className="block text-[11px] text-slate-500 mt-0.5">
                     {new Date(n.createdAt).toLocaleString()}

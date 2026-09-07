@@ -47,11 +47,11 @@ export default function AppShell() {
     <div className="h-full flex bg-surface surface-grid">
       <Sidebar mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-surface-2/90 backdrop-blur border-b border-edge flex items-center gap-3 px-4 sm:px-6 shrink-0">
+        <header className="h-16 bg-surface-2/90 backdrop-blur border-b border-edge flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 shrink-0">
           <button
             type="button"
             onClick={() => setMobileNavOpen(true)}
-            className="lg:hidden p-2 rounded-lg text-slate-400 hover:bg-surface-3 hover:text-slate-100"
+            className="lg:hidden p-2 rounded-md text-slate-400 hover:bg-surface-3 hover:text-slate-100"
             aria-label="Open navigation"
           >
             <span className="block w-5 h-0.5 bg-current mb-1" /><span className="block w-5 h-0.5 bg-current mb-1" /><span className="block w-5 h-0.5 bg-current" />
@@ -60,7 +60,7 @@ export default function AppShell() {
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="flex-1 max-w-xl text-left"
+            className="flex-1 max-w-2xl text-left"
             aria-label="Open search command palette"
           >
             <div className="relative cursor-text">
@@ -73,30 +73,30 @@ export default function AppShell() {
                 tabIndex={-1}
                 placeholder="Search tasks, projects…"
                 aria-label="Open search command palette"
-                className="w-full bg-surface-3/60 border border-edge rounded-lg pl-9 pr-16 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                className="w-full bg-surface-3/60 border border-edge rounded-md pl-9 pr-16 h-10 text-[13px] text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               />
               <kbd className="absolute right-2 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center rounded border border-edge px-1.5 py-0.5 text-[10px] text-slate-500">Ctrl K</kbd>
             </div>
           </button>
 
-          <div className="flex items-center gap-1 sm:gap-3 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-2.5 ml-auto">
             <div className="relative" ref={createRef}>
               <button
                 type="button"
                 onClick={() => setCreateOpen((open) => !open)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-400 transition"
+                className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 h-9 px-3.5 text-[13px] font-medium text-white hover:bg-brand-400 transition"
                 aria-haspopup="menu"
                 aria-expanded={createOpen}
               >
-                <span className="text-lg leading-none">+</span> Create
+                <span className="text-base leading-none">+</span> Create
               </button>
               {createOpen && (
-                <div role="menu" className="absolute right-0 mt-2 w-64 z-50 rounded-xl border border-edge bg-surface-2 shadow-2xl py-1.5 animate-fade-in">
+                <div role="menu" className="absolute right-0 mt-2 w-60 z-50 rounded-lg border border-edge bg-surface-2 shadow-2xl py-1 animate-fade-in">
                   {projectId && (
                     <button
                       role="menuitem"
                       onClick={() => { setCreateOpen(false); navigate(`/projects/${projectId}/board?task=new`); }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-surface-3/70 hover:text-slate-100 transition"
+                      className="w-full text-left px-3 py-2 text-[13px] text-slate-300 hover:bg-surface-3/70 hover:text-slate-100 transition"
                     >
                       <span className="block font-medium text-slate-200">New task</span>
                       <span className="block text-xs text-slate-500">In the current project</span>
@@ -105,7 +105,7 @@ export default function AppShell() {
                   <button
                     role="menuitem"
                     onClick={() => { setCreateOpen(false); navigate('/projects?new=1'); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-surface-3/70 hover:text-slate-100 transition"
+                    className="w-full text-left px-3 py-2 text-[13px] text-slate-300 hover:bg-surface-3/70 hover:text-slate-100 transition"
                   >
                     <span className="block font-medium text-slate-200">New project</span>
                     <span className="block text-xs text-slate-500">Start from a blank workspace</span>
@@ -113,7 +113,7 @@ export default function AppShell() {
                   <button
                     role="menuitem"
                     onClick={() => { setCreateOpen(false); navigate('/tasks'); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-surface-3/70 hover:text-slate-100 transition"
+                    className="w-full text-left px-3 py-2 text-[13px] text-slate-300 hover:bg-surface-3/70 hover:text-slate-100 transition"
                   >
                     <span className="block font-medium text-slate-200">My tasks</span>
                     <span className="block text-xs text-slate-500">View everything assigned to you</span>
@@ -123,7 +123,7 @@ export default function AppShell() {
             </div>
             <NotificationBell />
             <Link to="/settings" className="hover:opacity-80">
-              <Avatar name={user?.name} avatar={user?.avatar} size={30} />
+              <Avatar name={user?.name} avatar={user?.avatar} size={32} />
             </Link>
           </div>
         </header>

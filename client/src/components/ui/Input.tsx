@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react';
 
 const base =
-  'w-full bg-surface-2 border border-edge rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400/60 transition';
+  'w-full bg-surface-2 border border-edge rounded-md px-3 py-2 text-[13px] leading-relaxed text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400/60 transition';
 
 export function Input({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={`${base} ${className}`} {...rest} />;

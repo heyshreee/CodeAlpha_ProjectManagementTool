@@ -10,13 +10,13 @@ import { useRealtime } from '@/hooks/useRealtime';
 
 function StatCard({ label, value, detail, accent = 'text-slate-100' }: { label: string; value: number | string; detail: string; accent?: string }) {
   return (
-    <div className="bg-surface-2/90 border border-edge rounded-xl p-5 hover:border-slate-600 transition-colors">
+    <div className="bg-surface-2/90 border border-edge rounded-lg p-4 hover:border-slate-600 transition-colors flex flex-col justify-between">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">{label}</span>
-        <span className="h-2 w-2 rounded-full bg-current opacity-70" aria-hidden="true" />
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" aria-hidden="true" />
       </div>
-      <div className={`text-3xl font-semibold tracking-tight mt-3 ${accent}`}>{value}</div>
-      <div className="text-xs text-slate-500 mt-1">{detail}</div>
+      <div className={`text-[28px] leading-8 font-semibold tracking-tight mt-2 ${accent}`}>{value}</div>
+      <div className="text-xs text-slate-500 mt-0.5">{detail}</div>
     </div>
   );
 }
@@ -64,7 +64,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Spinner size={32} />
+        <Spinner size={24} />
       </div>
     );
   }
@@ -72,10 +72,10 @@ export default function Dashboard() {
   if (isError) {
     return (
       <div className="h-full flex items-center justify-center p-6">
-        <div className="bg-surface-2 border border-rose-500/30 rounded-xl p-8 text-center max-w-sm">
+        <div className="bg-surface-2 border border-rose-500/30 rounded-lg p-6 text-center max-w-sm">
           <p className="text-slate-200 font-medium">We couldn&apos;t load your workspace.</p>
           <p className="text-sm text-slate-500 mt-1">The backend may be unavailable — the data you see elsewhere is real, not this.</p>
-          <Button variant="secondary" size="sm" className="mt-4" onClick={() => refetch()}>Try again</Button>
+          <Button variant="secondary" size="sm" className="mt-3" onClick={() => refetch()}>Try again</Button>
         </div>
       </div>
     );
@@ -86,16 +86,16 @@ export default function Dashboard() {
   const activity = data?.activity || [];
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-[1500px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div className="p-4 sm:p-5 space-y-4 max-w-[1500px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-2">Workspace overview</p>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-300 mb-1">Workspace overview</p>
+          <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold tracking-tight text-slate-100">
             {greeting()}, {user?.name?.split(' ')[0] || 'there'}
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Here&apos;s what&apos;s happening across your workspace.</p>
+          <p className="text-[13px] text-slate-400 mt-0.5">Here&apos;s what&apos;s happening across your workspace.</p>
         </div>
-        <Link to="/projects"><Button><span className="text-lg leading-none">+</span> New Project</Button></Link>
+        <Link to="/projects"><Button><span className="text-base leading-none">+</span> New Project</Button></Link>
       </div>
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
@@ -110,35 +110,35 @@ export default function Dashboard() {
         <StatCard label="Overdue" value={data?.overdueTasks || 0} detail="Past due date and open" accent="text-rose-400" />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="lg:col-span-2 bg-surface-2/90 border border-edge rounded-xl p-5">
-          <div className="flex items-center justify-between mb-5">
-            <div><h2 className="text-base font-semibold text-slate-100">Recent projects</h2><p className="text-xs text-slate-500 mt-1">Your latest active workspaces</p></div>
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 bg-surface-2/90 border border-edge rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div><h2 className="text-[15px] font-semibold text-slate-100">Recent projects</h2><p className="text-[13px] text-slate-500 mt-0.5">Your latest active workspaces</p></div>
             <Link to="/projects" className="text-xs font-medium text-brand-300 hover:text-brand-200">View all</Link>
           </div>
           {recent.length === 0 ? (
-            <div className="text-sm text-slate-500 py-10 text-center border border-dashed border-edge rounded-lg">No projects yet. <Link to="/projects" className="text-brand-300 hover:text-brand-200">Create your first project</Link></div>
+            <div className="text-sm text-slate-500 py-8 text-center border border-dashed border-edge rounded-lg">No projects yet. <Link to="/projects" className="text-brand-300 hover:text-brand-200">Create your first project</Link></div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {recent.map((p) => (
                 <Link
                   key={p.id}
                   to={`/projects/${p.id}/board`}
-                  className="block bg-surface-3/45 border border-edge rounded-lg p-4 hover:border-brand-400/50 hover:bg-surface-3/70 transition group"
+                  className="block bg-surface-3/45 border border-edge rounded-md p-3 hover:border-brand-400/50 hover:bg-surface-3/70 transition group"
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color || '#6366f1' }} />
-                    <span className="font-medium text-slate-100 group-hover:text-brand-300 truncate">{p.name}</span>
+                    <span className="text-[13px] font-medium text-slate-100 group-hover:text-brand-300 truncate">{p.name}</span>
                     <span className="ml-auto text-xs text-slate-500">{p.completedCount}/{p.taskCount} tasks</span>
                   </div>
-                  <div className="mt-3">
-                    <div className="h-2 rounded-full bg-surface-3 overflow-hidden">
+                  <div className="mt-2">
+                    <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{ width: `${p.completionRate}%`, background: p.completionRate === 100 ? '#34d399' : p.color || '#6366f1' }}
                       />
                     </div>
-                    <div className="text-xs text-slate-500 mt-1.5 flex items-center justify-between">
+                    <div className="text-xs text-slate-500 mt-1 flex items-center justify-between">
                       <span>{p.taskCount} tasks · {p.memberCount} members</span>
                       <span className="text-slate-400 font-medium">{p.completionRate}%</span>
                     </div>
@@ -149,19 +149,19 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="bg-surface-2/90 border border-edge rounded-xl p-5">
-          <div className="flex items-center justify-between mb-5"><div><h2 className="text-base font-semibold text-slate-100">Upcoming deadlines</h2><p className="text-xs text-slate-500 mt-1">Next tasks on your calendar</p></div><span className="text-xs text-amber-400">{upcoming.length} due</span></div>
+        <div className="bg-surface-2/90 border border-edge rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3"><div><h2 className="text-[15px] font-semibold text-slate-100">Upcoming deadlines</h2><p className="text-[13px] text-slate-500 mt-0.5">Next tasks on your calendar</p></div><span className="text-xs text-amber-400">{upcoming.length} due</span></div>
           {upcoming.length === 0 ? (
-            <div className="text-sm text-slate-500 py-10 text-center border border-dashed border-edge rounded-lg">Nothing due soon</div>
+            <div className="text-sm text-slate-500 py-8 text-center border border-dashed border-edge rounded-lg">Nothing due soon</div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {upcoming.map((t) => (
                 <Link
                   key={t.id}
                   to={`/projects/${t.projectId}/board?task=${t.id}`}
-                  className="block bg-surface-3/50 border border-edge rounded-lg p-3 hover:border-brand-500/40 transition"
+                  className="block bg-surface-3/50 border border-edge rounded-md p-2.5 hover:border-brand-500/40 transition"
                 >
-                  <div className="text-sm text-slate-200 truncate">{t.title}</div>
+                  <div className="text-[13px] text-slate-200 truncate">{t.title}</div>
                   <div className="text-xs text-slate-500 mt-1 flex justify-between">
                     <span>{t.project.name}</span>
                     <span className="text-amber-400">{new Date(t.dueDate!).toLocaleDateString()}</span>
@@ -173,19 +173,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-surface-2/90 border border-edge rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div><h2 className="text-base font-semibold text-slate-100">Recent activity</h2><p className="text-xs text-slate-500 mt-1">Latest changes across your projects</p></div>
+      <div className="bg-surface-2/90 border border-edge rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div><h2 className="text-[15px] font-semibold text-slate-100">Recent activity</h2><p className="text-[13px] text-slate-500 mt-0.5">Latest changes across your projects</p></div>
         </div>
         {activity.length === 0 ? (
-          <div className="text-sm text-slate-500 py-8 text-center border border-dashed border-edge rounded-lg">No activity yet. Actions in your projects will show up here.</div>
+          <div className="text-sm text-slate-500 py-6 text-center border border-dashed border-edge rounded-lg">No activity yet. Actions in your projects will show up here.</div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {activity.map((a) => (
-              <div key={a.id} className="flex items-start gap-3 py-2.5 border-b border-edge/60 last:border-0">
-                <Avatar name={a.user.name} avatar={a.user.avatar} size={28} />
+              <div key={a.id} className="flex items-start gap-3 py-2 border-b border-edge/60 last:border-0">
+                <Avatar name={a.user.name} avatar={a.user.avatar} size={24} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-slate-300">
+                  <p className="text-[13px] text-slate-300">
                     <span className="font-medium text-slate-100">{a.user.name}</span>{' '}
                     <span className="text-slate-500">{ACTIVITY_LABEL[a.action] || a.action.toLowerCase()}</span>
                     {a.task?.title && <span className="text-slate-300"> “{a.task.title}”</span>}

@@ -45,7 +45,7 @@ export default function ResetPassword() {
         <Field label="Confirm password">
           <Input name="confirm" type="password" required placeholder="Re-enter password" />
         </Field>
-        <Button type="submit" className="w-full" disabled={loading} size="lg">
+        <Button type="submit" className="w-full" disabled={loading} size="md">
           {loading ? 'Resetting...' : 'Reset password'}
         </Button>
       </form>

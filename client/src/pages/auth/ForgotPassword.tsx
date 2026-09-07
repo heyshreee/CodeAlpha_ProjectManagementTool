@@ -35,12 +35,12 @@ export default function ForgotPassword() {
           <Field label="Email">
             <Input name="email" type="email" required placeholder="you@company.com" />
           </Field>
-          <Button type="submit" className="w-full" disabled={loading} size="lg">
+          <Button type="submit" className="w-full" disabled={loading} size="md">
             {loading ? 'Sending...' : 'Send reset link'}
           </Button>
         </form>
       )}
-      <p className="mt-5 text-center text-sm text-slate-400">
+      <p className="mt-4 text-center text-sm text-slate-400">
         <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium">
           Back to sign in
         </Link>

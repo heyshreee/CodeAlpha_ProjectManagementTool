@@ -27,8 +27,8 @@ import Notifications from '@/pages/Notifications';
 const Analytics = lazy(() => import('@/pages/project/Analytics'));
 
 const PageLoader = () => (
-  <div className="flex justify-center py-20">
-    <Spinner size={28} />
+  <div className="flex justify-center py-16">
+    <Spinner size={24} />
   </div>
 );
 

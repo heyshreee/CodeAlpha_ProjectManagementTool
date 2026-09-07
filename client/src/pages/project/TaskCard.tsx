@@ -15,27 +15,27 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
         e.stopPropagation();
         onClick();
       }}
-      className="w-full text-left bg-surface-3 border border-edge rounded-lg p-3 hover:border-brand-500/50 transition group shadow-sm"
+      className="w-full text-left bg-surface-3 border border-edge rounded-md p-2.5 hover:border-brand-500/50 transition group shadow-sm"
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-wrap gap-1.5 mb-2">
+        <div className="flex flex-wrap gap-1 mb-1.5">
           <PriorityBadge priority={task.priority} />
           <StatusBadge status={task.status} />
         </div>
       </div>
 
-      <div className="text-sm text-slate-100 font-medium leading-snug">{task.title}</div>
+      <div className="text-[13px] text-slate-100 font-medium leading-snug">{task.title}</div>
 
       {task.description && (
         <p className="text-xs text-slate-400 mt-1 line-clamp-2">{task.description}</p>
       )}
 
       {(task.labels?.length || 0) > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
+        <div className="flex flex-wrap gap-1 mt-1.5">
           {task.labels!.slice(0, 3).map((tl) => (
             <span
               key={tl.label.id}
-              className="text-[10px] px-1.5 py-0.5 rounded border"
+              className="text-[10px] leading-4 px-1.5 py-0.5 rounded border"
               style={{ borderColor: `${tl.label.color || '#8b5cf6'}55`, color: tl.label.color || '#8b5cf6', background: `${tl.label.color || '#8b5cf6'}15` }}
             >
               {tl.label.name}
@@ -44,8 +44,8 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-3">
-        <div className="text-xs text-slate-500 flex items-center gap-2">
+      <div className="flex items-center justify-between mt-2">
+        <div className="text-[11px] text-slate-500 flex items-center gap-2">
           {task.dueDate && (
             <span className={isOverdue ? 'text-rose-400' : ''}>
               {isOverdue && '⚠ '}
@@ -57,7 +57,7 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
           )}
         </div>
         <div className="flex -space-x-1.5">
-          <Avatar name={task.assignee?.name} avatar={task.assignee?.avatar} size={22} />
+          <Avatar name={task.assignee?.name} avatar={task.assignee?.avatar} size={20} />
         </div>
       </div>
     </button>

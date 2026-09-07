@@ -43,11 +43,11 @@ export default function Login() {
             Forgot password?
           </Link>
         </div>
-        <Button type="submit" className="w-full" disabled={loading} size="lg">
+        <Button type="submit" className="w-full" disabled={loading} size="md">
           {loading ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
-      <p className="mt-5 text-center text-sm text-slate-400">
+      <p className="mt-4 text-center text-sm text-slate-400">
         New here?{' '}
         <Link to="/register" className="text-brand-400 hover:text-brand-300 font-medium">
           Create an account

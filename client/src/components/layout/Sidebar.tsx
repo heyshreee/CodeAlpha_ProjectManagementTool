@@ -23,20 +23,20 @@ function ProjectSection({ onClose }: { onClose?: () => void }) {
   const { data: project } = useProject(id || '');
   if (!id || !project) return null;
   return (
-    <div className="pt-6">
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">Current project</p>
-      <div className="px-3 pb-1 flex items-center gap-2 overflow-hidden">
+    <div className="pt-4">
+      <p className="px-2.5 pb-1.5 pt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">Current project</p>
+      <div className="px-2.5 pb-1 flex items-center gap-2 overflow-hidden">
         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: project.color || '#6366f1' }} />
-        <span className="text-sm font-medium text-slate-100 truncate">{project.name}</span>
+        <span className="text-[13px] font-medium text-slate-100 truncate">{project.name}</span>
       </div>
-      <div className="mt-1 space-y-1">
+      <div className="mt-0.5 space-y-0.5">
         {projectNav.map((item) => (
           <NavLink
             key={item.to}
             to={`/projects/${id}/${item.to === 'board' ? 'board' : item.to}`}
             onClick={onClose}
             className={({ isActive }) =>
-              `flex items-center gap-3 pl-[18px] pr-3 py-2 rounded-lg text-sm transition ${
+              `flex items-center gap-2 pl-4 pr-2.5 py-1.5 rounded-md text-[13px] transition ${
                 isActive ? 'bg-brand-600/20 text-brand-300' : 'text-slate-400 hover:bg-surface-3/50 hover:text-slate-200'
               }`
             }
@@ -64,24 +64,24 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: { mobileO
   }
 
   return (
-    <aside className={`${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-surface-2 border-r border-edge flex flex-col shrink-0 transition-transform duration-200`}>
-      <div className="flex items-center gap-2 px-5 py-4 border-b border-edge">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold">
+    <aside className={`${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-60 bg-surface-2 border-r border-edge flex flex-col shrink-0 transition-transform duration-200`}>
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-edge">
+        <div className="w-7 h-7 rounded-md bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">
           PF
         </div>
-        <span className="font-bold text-slate-100">ProjectFlow</span>
+        <span className="font-bold text-[15px] text-slate-100">ProjectFlow</span>
         <button type="button" onClick={onMobileClose} className="lg:hidden ml-auto text-slate-500 hover:text-slate-100" aria-label="Close navigation">×</button>
       </div>
 
-      <nav className="flex-1 py-5 px-3 space-y-1">
-        <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">Workspace</p>
+      <nav className="flex-1 py-3 px-2.5 space-y-0.5">
+        <p className="px-2.5 pb-1.5 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">Workspace</p>
         {nav.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+              `flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] transition ${
                 isActive ? 'bg-brand-600/20 text-brand-300' : 'text-slate-400 hover:bg-surface-3/50 hover:text-slate-200'
               }`
             }
@@ -94,19 +94,19 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: { mobileO
           </NavLink>
         ))}
         <ProjectSection onClose={onMobileClose} />
-        <div className="pt-6">
-          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">Manage</p>
-          <NavLink to="/settings" onClick={onMobileClose} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${isActive ? 'bg-brand-500/15 text-brand-300' : 'text-slate-400 hover:bg-surface-3/50 hover:text-slate-200'}`}>
-            <span aria-hidden="true" className="text-base">⚙</span> Settings
+        <div className="pt-4">
+          <p className="px-2.5 pb-1.5 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">Manage</p>
+          <NavLink to="/settings" onClick={onMobileClose} className={({ isActive }) => `flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] transition ${isActive ? 'bg-brand-500/15 text-brand-300' : 'text-slate-400 hover:bg-surface-3/50 hover:text-slate-200'}`}>
+            <span aria-hidden="true" className="text-sm">⚙</span> Settings
           </NavLink>
         </div>
       </nav>
 
-      <div className="p-3 border-t border-edge">
-        <div className="flex items-center gap-3 px-2 py-2">
+      <div className="p-2.5 border-t border-edge">
+        <div className="flex items-center gap-2.5 px-1.5 py-1.5">
           <Avatar name={user?.name} avatar={user?.avatar} size={32} />
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-slate-200 truncate">{user?.name}</div>
+            <div className="text-[13px] font-medium text-slate-200 truncate">{user?.name}</div>
             <div className="text-xs text-slate-500 truncate">{user?.email}</div>
           </div>
           <button

@@ -34,19 +34,19 @@ export default function Activity() {
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-sm font-semibold text-slate-200 mb-4">Activity timeline</h2>
+      <h2 className="text-[15px] font-semibold text-slate-200 mb-3">Activity timeline</h2>
       {(!activities || activities.length === 0) ? (
-        <div className="text-slate-500 text-sm py-8 text-center">No activity yet</div>
+        <div className="text-slate-500 text-sm py-6 text-center">No activity yet</div>
       ) : (
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {activities.map((a, i) => (
             <div key={a.id} className="flex gap-3">
               <div className="flex flex-col items-center">
-                <Avatar name={a.user.name} avatar={a.user.avatar} size={28} />
+                <Avatar name={a.user.name} avatar={a.user.avatar} size={24} />
                 {i < activities.length - 1 && <div className="w-px flex-1 bg-edge my-1" />}
               </div>
-              <div className="pb-4">
-                <p className="text-sm text-slate-300">
+              <div className="pb-3">
+                <p className="text-[13px] text-slate-300">
                   <span className="font-medium text-slate-200">{a.user.name}</span>{' '}
                   {actionLabels[a.action] || a.action.replace('.', ' ')}
                   {a.details && <span className="text-slate-400"> — {a.details}</span>}

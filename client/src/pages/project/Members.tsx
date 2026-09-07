@@ -52,20 +52,20 @@ export default function Members() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-slate-200">Project members</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[15px] font-semibold text-slate-200">Project members</h2>
         {canManage && <Button size="sm" onClick={() => setInviteOpen(true)}>+ Invite</Button>}
       </div>
 
       {isLoading ? (
-        <div className="text-slate-500 text-sm py-8">Loading members...</div>
+        <div className="text-slate-500 text-sm py-6">Loading members...</div>
       ) : (
-        <div className="bg-surface-2 border border-edge rounded-xl divide-y divide-edge">
+        <div className="bg-surface-2 border border-edge rounded-lg divide-y divide-edge">
           {(members || []).map((m: any) => (
-            <div key={m.id} className="flex items-center gap-3 px-4 py-3">
-              <Avatar name={m.user.name} avatar={m.user.avatar} size={36} />
+            <div key={m.id} className="flex items-center gap-3 px-3.5 py-2.5">
+              <Avatar name={m.user.name} avatar={m.user.avatar} size={32} />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-slate-200 truncate">
+                <div className="text-[13px] font-medium text-slate-200 truncate">
                   {m.user.name}
                   {m.user.id === currentUser?.id && <span className="text-slate-500 text-xs"> (you)</span>}
                 </div>
@@ -130,8 +130,8 @@ function InviteModal({ open, onClose, projectId }: { open: boolean; onClose: () 
 
   return (
     <Modal open={open} onClose={onClose} title="Invite a member" footer={<Button form="invite-form" type="submit" disabled={loading}>{loading ? 'Inviting...' : 'Invite'}</Button>}>
-      <form id="invite-form" onSubmit={onSubmit} className="space-y-4">
-        {error && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2">{error}</div>}
+      <form id="invite-form" onSubmit={onSubmit} className="space-y-3">
+        {error && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-md px-3 py-2">{error}</div>}
         <Field label="Email">
           <Input name="email" type="email" required placeholder="teammate@company.com" />
         </Field>
