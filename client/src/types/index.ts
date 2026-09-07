@@ -117,6 +117,8 @@ export interface Notification {
   body?: string | null;
   status: 'UNREAD' | 'READ';
   createdAt: string;
+  projectId?: string | null;
+  taskId?: string | null;
   project?: { name: string; color?: string | null };
 }
 
@@ -126,6 +128,8 @@ export interface Activity {
   details?: string | null;
   createdAt: string;
   user: { id: string; name: string; avatar?: string | null };
+  project?: { id: string; name: string; color?: string | null };
+  task?: { id: string; title: string };
 }
 
 export interface DashboardStats {
