@@ -4,16 +4,46 @@ import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import type { DashboardStats } from '@/types';
 import Spinner from '@/components/ui/Spinner';
+import Button from '@/components/ui/Button';
+import Avatar from '@/components/ui/Avatar';
 import { useRealtime } from '@/hooks/useRealtime';
 
-function StatCard({ label, value, accent = 'text-slate-200' }: { label: string; value: number | string; accent?: string }) {
+function StatCard({ label, value, detail, accent = 'text-slate-100' }: { label: string; value: number | string; detail: string; accent?: string }) {
   return (
-    <div className="bg-surface-2 border border-edge rounded-xl p-4">
-      <div className="text-sm text-slate-400">{label}</div>
-      <div className={`text-2xl font-bold mt-1 ${accent}`}>{value}</div>
+    <div className="bg-surface-2/90 border border-edge rounded-xl p-5 hover:border-slate-600 transition-colors">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">{label}</span>
+        <span className="h-2 w-2 rounded-full bg-current opacity-70" aria-hidden="true" />
+      </div>
+      <div className={`text-3xl font-semibold tracking-tight mt-3 ${accent}`}>{value}</div>
+      <div className="text-xs text-slate-500 mt-1">{detail}</div>
     </div>
   );
 }
+
+function timeAgo(date: string) {
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+const ACTIVITY_LABEL: Record<string, string> = {
+  'task.created': 'created a task',
+  'task.updated': 'updated a task',
+  'task.deleted': 'deleted a task',
+  'task.moved': 'moved a task',
+  'comment.created': 'commented on a task',
+  'member.added': 'added a member',
+  'member.removed': 'removed a member',
+  'attachment.added': 'attached a file',
+  'label.created': 'created a label',
+  'project.created': 'created a project',
+};
 
 function greeting() {
   const h = new Date().getHours();
