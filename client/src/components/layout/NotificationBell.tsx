@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
-import { getSocket } from '@/lib/socket';
+import { connectSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/authStore';
 import type { Notification } from '@/types';
 
@@ -10,6 +11,7 @@ export default function NotificationBell() {
   const ref = useRef<HTMLDivElement>(null);
   const user = useAuthStore((s) => s.user);
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const { data } = useQuery({
     queryKey: ['notifications'],
@@ -20,11 +22,11 @@ export default function NotificationBell() {
   const notifications = data?.notifications || [];
   const unread = data?.unreadCount || 0;
 
-  // Real-time subscription.
+  // Real-time subscription using the shared socket so the bell never misses a
+  // push (connectSocket returns the same instance as the app uses).
   useEffect(() => {
     if (!user) return;
-    const socket = getSocket();
-    if (!socket) return;
+    const socket = connectSocket();
     const handler = () => {
       qc.invalidateQueries({ queryKey: ['notifications'] });
     };
@@ -50,6 +52,16 @@ export default function NotificationBell() {
   async function markRead(id: string) {
     await api.patch(`/notifications/${id}/read`);
     qc.invalidateQueries({ queryKey: ['notifications'] });
+  }
+
+  async function openNotification(n: Notification) {
+    if (n.status === 'UNREAD') await markRead(n.id);
+    setOpen(false);
+    if (n.taskId && n.projectId) {
+      navigate(`/projects/${n.projectId}/board?task=${n.taskId}`);
+    } else if (n.projectId) {
+      navigate(`/projects/${n.projectId}/board`);
+    }
   }
 
   return (
@@ -86,7 +98,7 @@ export default function NotificationBell() {
             {notifications.map((n) => (
               <button
                 key={n.id}
-                onClick={() => n.status === 'UNREAD' && markRead(n.id)}
+                onClick={() => openNotification(n)}
                 className={`w-full text-left px-4 py-3 hover:bg-surface-3/60 transition flex gap-3 ${
                   n.status === 'UNREAD' ? 'bg-brand-600/5' : ''
                 }`}
