@@ -125,7 +125,7 @@ export default function Projects() {
         </div>
       )}
 
-      <CreateProjectModal open={open} onClose={() => setOpen(false)} />
+      <CreateProjectModal open={open} onClose={() => { setOpen(false); setParams({}, { replace: true }); }} />
     </div>
   );
 }
