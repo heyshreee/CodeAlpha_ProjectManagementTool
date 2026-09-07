@@ -1,20 +1,6 @@
-import type { TaskPriority, Task } from '@/types';
+import type { Task } from '@/types';
 import Avatar from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
-
-const prioColor: Record<TaskPriority, string> = {
-  URGENT: '#f43f5e',
-  HIGH: '#f59e0b',
-  MEDIUM: '#0ea5e9',
-  LOW: '#94a3b8',
-};
-
-const statusColor: Record<string, string> = {
-  BACKLOG: 'bg-slate-500/20 text-slate-400',
-  TODO: 'bg-slate-400/20 text-slate-300',
-  IN_PROGRESS: 'bg-brand-500/20 text-brand-300',
-  DONE: 'bg-emerald-500/20 text-emerald-400',
-};
+import { PriorityBadge, StatusBadge } from '@/components/ui/Badge';
 
 function overdue(due?: string | null, status?: string) {
   if (!due || status === 'DONE') return false;
@@ -33,15 +19,8 @@ export default function TaskCard({ task, onClick }: { task: Task; onClick: () =>
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap gap-1.5 mb-2">
-          <span
-            className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
-            style={{ background: `${prioColor[task.priority]}22`, color: prioColor[task.priority] }}
-          >
-            {task.priority}
-          </span>
-          <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${statusColor[task.status]}`}>
-            {task.status.replace('_', ' ')}
-          </span>
+          <PriorityBadge priority={task.priority} />
+          <StatusBadge status={task.status} />
         </div>
       </div>
 
