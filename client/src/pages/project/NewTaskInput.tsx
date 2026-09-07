@@ -7,10 +7,10 @@ import { toast } from '@/lib/toast';
 import { useProject } from '@/hooks/useProject';
 import type { ProjectRole } from '@/types';
 
-export function NewTaskInput({ columnId }: { columnId: string }) {
+export function NewTaskInput({ columnId, autoOpen = false }: { columnId: string; autoOpen?: boolean }) {
   const { id = '' } = useParams();
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(autoOpen);
   const [title, setTitle] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { data: project } = useProject(id);
