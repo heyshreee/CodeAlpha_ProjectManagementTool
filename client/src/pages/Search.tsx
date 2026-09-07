@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
+import { PriorityBadge, StatusBadge } from '@/components/ui/Badge';
 import type { Task, Project } from '@/types';
 import Spinner from '@/components/ui/Spinner';
 import { Link } from 'react-router-dom';
@@ -62,8 +62,8 @@ export default function Search() {
                 >
                   <span className="text-xs text-slate-500 font-mono">#{t.id.slice(-4).toUpperCase()}</span>
                   <span className="flex-1 text-sm text-slate-200 truncate">{t.title}</span>
-                  <Badge tone="priority">{t.priority}</Badge>
-                  <Badge tone="status">{t.status}</Badge>
+                  <PriorityBadge priority={t.priority} />
+                  <StatusBadge status={t.status} />
                 </Link>
               ))}
               {results.tasks.length === 0 && <div className="text-sm text-slate-500">No tasks found</div>}
