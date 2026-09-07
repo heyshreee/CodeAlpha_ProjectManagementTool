@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RequireAuth, GuestOnly } from '@/components/auth/Guards';
 import AppShell from '@/components/layout/AppShell';
@@ -20,6 +20,8 @@ import Activity from '@/pages/project/Activity';
 import Calendar from '@/pages/Calendar';
 import Search from '@/pages/Search';
 import Settings from '@/pages/Settings';
+import MyTasks from '@/pages/MyTasks';
+import Notifications from '@/pages/Notifications';
 
 // Recharts is heavy — load analytics on demand.
 const Analytics = lazy(() => import('@/pages/project/Analytics'));
@@ -44,6 +46,16 @@ export default function App() {
   const user = useAuthStore((s) => s.user);
   useRealtime();
 
+  // Keep the browser tab title in sync with the signed-in workspace owner.
+  useEffect(() => {
+    const base = 'ProjectFlow';
+    if (user?.name) {
+      document.title = `${user.name} — ${base}`;
+    } else {
+      document.title = base;
+    }
+  }, [user?.name]);
+
   return (
     <>
       <Routes>
@@ -62,6 +74,8 @@ export default function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="tasks" element={<MyTasks />} />
+          <Route path="notifications" element={<Notifications />} />
           <Route path="projects/:id" element={<ProjectLayout />}>
             <Route index element={<Navigate to="board" replace />} />
             <Route path="board" element={<BoardPage />} />
