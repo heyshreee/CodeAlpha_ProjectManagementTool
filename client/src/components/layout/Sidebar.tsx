@@ -64,15 +64,17 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: { mobileO
   }
 
   return (
-    <aside className="w-60 bg-surface-2 border-r border-edge flex flex-col shrink-0">
+    <aside className={`${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-surface-2 border-r border-edge flex flex-col shrink-0 transition-transform duration-200`}>
       <div className="flex items-center gap-2 px-5 py-4 border-b border-edge">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold">
           PF
         </div>
         <span className="font-bold text-slate-100">ProjectFlow</span>
+        <button type="button" onClick={onMobileClose} className="lg:hidden ml-auto text-slate-500 hover:text-slate-100" aria-label="Close navigation">×</button>
       </div>
 
-      <nav className="flex-1 py-4 px-3 space-y-1">
+      <nav className="flex-1 py-5 px-3 space-y-1">
+        <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">Workspace</p>
         {nav.map((item) => (
           <NavLink
             key={item.to}
@@ -83,6 +85,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: { mobileO
                 isActive ? 'bg-brand-600/20 text-brand-300' : 'text-slate-400 hover:bg-surface-3/50 hover:text-slate-200'
               }`
             }
+            onClick={onMobileClose}
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" />
@@ -90,6 +93,13 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: { mobileO
             {item.label}
           </NavLink>
         ))}
+        <ProjectSection onClose={onMobileClose} />
+        <div className="pt-6">
+          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">Manage</p>
+          <NavLink to="/settings" onClick={onMobileClose} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${isActive ? 'bg-brand-500/15 text-brand-300' : 'text-slate-400 hover:bg-surface-3/50 hover:text-slate-200'}`}>
+            <span aria-hidden="true" className="text-base">⚙</span> Settings
+          </NavLink>
+        </div>
       </nav>
 
       <div className="p-3 border-t border-edge">
