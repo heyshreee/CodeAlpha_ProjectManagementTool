@@ -29,6 +29,29 @@ exports.list = asyncHandler(async (req, res) => {
 
   const projects = memberships.map((m) => ({ ...m.project, role: m.role }));
 
+  // Per-project completion so cards can render honest progress bars.
+  const ids = projects.map((p) => p.id);
+  if (ids.length) {
+    const grouped = await prisma.task.groupBy({
+      by: ['projectId', 'status'],
+      where: { projectId: { in: ids } },
+      _count: { _all: true },
+    });
+    const perProject = new Map();
+    for (const g of grouped) {
+      if (!perProject.has(g.projectId)) perProject.set(g.projectId, { DONE: 0 });
+      perProject.get(g.projectId)[g.status] = (perProject.get(g.projectId)[g.status] || 0) + g._count._all;
+    }
+    for (const p of projects) {
+      const status = perProject.get(p.id) || {};
+      const taskCount = Object.values(status).reduce((a, b) => a + b, 0);
+      const completedCount = status.DONE || 0;
+      p.completedCount = completedCount;
+      p.taskCount = taskCount;
+      p.completionRate = taskCount ? Math.round((completedCount / taskCount) * 100) : 0;
+    }
+  }
+
   return res.json({ success: true, data: projects });
 });
 
@@ -41,7 +64,9 @@ exports.get = asyncHandler(async (req, res) => {
       _count: { select: { tasks: true, members: true, boards: true } },
     },
   });
-  return res.json({ success: true, data: project });
+  // Attach the current user's role so the frontend can render permission-aware
+  // controls (add members, create tasks, edit tasks, manage members).
+  return res.json({ success: true, data: { ...project, role: req.membership.role } });
 });
 
 exports.create = asyncHandler(async (req, res) => {
