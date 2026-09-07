@@ -5,6 +5,7 @@ import AppShell from '@/components/layout/AppShell';
 import { ToastHost } from '@/lib/toast';
 import { useRealtime } from '@/hooks/useRealtime';
 import { useAuthStore } from '@/stores/authStore';
+import { applyAccent, getLocalAccent, isAccentId, normalizeAccent } from '@/lib/accent';
 import Spinner from '@/components/ui/Spinner';
 
 import Login from '@/pages/auth/Login';
@@ -55,6 +56,12 @@ export default function App() {
       document.title = base;
     }
   }, [user?.name]);
+
+  // Restore the user's appearance: the DB value wins, with the device value as
+  // a fallback for accounts that haven't picked a color yet.
+  useEffect(() => {
+    applyAccent(normalizeAccent(isAccentId(user?.accentColor) ? user.accentColor : getLocalAccent()));
+  }, [user?.accentColor, user?.id]);
 
   return (
     <>

@@ -10,6 +10,7 @@ function publicUser(user) {
     email: user.email,
     avatar: user.avatar,
     bio: user.bio,
+    accentColor: user.accentColor || null,
     createdAt: user.createdAt,
   };
 }

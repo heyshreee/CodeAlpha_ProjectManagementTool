@@ -25,9 +25,16 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(8).max(128),
 });
 
+const ACCENT_COLORS = ['violet', 'blue', 'emerald', 'rose', 'amber', 'cyan'];
+
 const updateProfileSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   bio: z.string().trim().max(300).optional(),
+  accentColor: z
+    .enum(ACCENT_COLORS)
+    .nullable()
+    .optional()
+    .transform((v) => v ?? undefined),
 });
 
 module.exports = {

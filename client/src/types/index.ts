@@ -8,6 +8,7 @@ export interface User {
   email: string;
   avatar?: string | null;
   bio?: string | null;
+  accentColor?: string | null;
   createdAt: string;
 }
 
