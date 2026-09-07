@@ -116,8 +116,22 @@ export default function Projects() {
               </div>
               <h3 className="font-semibold text-slate-100 group-hover:text-brand-300">{p.name}</h3>
               {p.description && <p className="text-sm text-slate-400 mt-1 line-clamp-2">{p.description}</p>}
-              <div className="text-xs text-slate-500 mt-4 flex gap-4">
-                <span>{p._count?.tasks || 0} tasks</span>
+              {(typeof p.completionRate === 'number') && (
+                <div className="mt-3">
+                  <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${p.completionRate}%`, background: p.completionRate === 100 ? '#34d399' : p.color || '#6366f1' }}
+                    />
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1.5 flex items-center justify-between">
+                    <span>{p.completedCount}/{p.taskCount} tasks</span>
+                    <span className="text-slate-400 font-medium">{p.completionRate}%</span>
+                  </div>
+                </div>
+              )}
+              <div className="text-xs text-slate-500 mt-3 flex gap-4">
+                <span>{p._count?.tasks || p.taskCount || 0} tasks</span>
                 <span>{p._count?.members || 0} members</span>
               </div>
             </Link>
