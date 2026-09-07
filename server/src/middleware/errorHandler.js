@@ -12,6 +12,11 @@ function errorHandler(err, req, res, _next) {
     return res.status(status).json({ success: false, message });
   }
 
+  // Malformed JSON body from body-parser — return 400 instead of 500.
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ success: false, message: 'Invalid JSON in request body' });
+  }
+
   if (err.statusCode && err.isOperational) {
     return res.status(err.statusCode).json({
       success: false,
