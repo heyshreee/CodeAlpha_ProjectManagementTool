@@ -69,61 +69,79 @@ export default function Dashboard() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="h-full flex items-center justify-center p-6">
+        <div className="bg-surface-2 border border-rose-500/30 rounded-xl p-8 text-center max-w-sm">
+          <p className="text-slate-200 font-medium">We couldn&apos;t load your workspace.</p>
+          <p className="text-sm text-slate-500 mt-1">The backend may be unavailable — the data you see elsewhere is real, not this.</p>
+          <Button variant="secondary" size="sm" className="mt-4" onClick={() => refetch()}>Try again</Button>
+        </div>
+      </div>
+    );
+  }
+
   const upcoming = data?.upcomingDeadlines || [];
   const recent = data?.recentProjects || [];
+  const activity = data?.activity || [];
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-100">
-          {greeting()}, {user?.name?.split(' ')[0]}
-        </h1>
-        <p className="text-sm text-slate-400">Here's what's happening across your projects today.</p>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Projects" value={data?.totalProjects || 0} />
-        <StatCard label="Total tasks" value={data?.totalTasks || 0} />
-        <StatCard label="Assigned to me" value={data?.assignedTasks || 0} />
-        <StatCard label="Completed" value={data?.completedTasks || 0} accent="text-emerald-400" />
-      </div>
-
-      {data && (data.overdueTasks > 0 || data.myCompleted > 0) && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Overdue" value={data.overdueTasks} accent="text-rose-400" />
-          <StatCard label="My completed" value={data.myCompleted} accent="text-emerald-400" />
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1500px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-2">Workspace overview</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-100">
+            {greeting()}, {user?.name?.split(' ')[0] || 'there'}
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">Here&apos;s what&apos;s happening across your workspace.</p>
         </div>
-      )}
+        <Link to="/projects"><Button><span className="text-lg leading-none">+</span> New Project</Button></Link>
+      </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-surface-2 border border-edge rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-slate-200 mb-4">Recent projects</h2>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard label="Projects" value={data?.totalProjects || 0} detail="In your workspace" />
+        <StatCard label="Active tasks" value={Math.max((data?.totalTasks || 0) - (data?.completedTasks || 0), 0)} detail="Not yet done, across all projects" accent="text-brand-300" />
+        <StatCard
+          label="Completed"
+          value={data?.completedTasks || 0}
+          detail={`${data?.myCompleted || 0} of these were done by you`}
+          accent="text-emerald-400"
+        />
+        <StatCard label="Overdue" value={data?.overdueTasks || 0} detail="Past due date and open" accent="text-rose-400" />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 bg-surface-2/90 border border-edge rounded-xl p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div><h2 className="text-base font-semibold text-slate-100">Recent projects</h2><p className="text-xs text-slate-500 mt-1">Your latest active workspaces</p></div>
+            <Link to="/projects" className="text-xs font-medium text-brand-300 hover:text-brand-200">View all</Link>
+          </div>
           {recent.length === 0 ? (
-            <div className="text-sm text-slate-500 py-8 text-center">
-              No projects yet.{' '}
-              <Link to="/projects" className="text-brand-400 hover:text-brand-300">
-                Create your first project
-              </Link>
-            </div>
+            <div className="text-sm text-slate-500 py-10 text-center border border-dashed border-edge rounded-lg">No projects yet. <Link to="/projects" className="text-brand-300 hover:text-brand-200">Create your first project</Link></div>
           ) : (
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
               {recent.map((p) => (
                 <Link
                   key={p.id}
                   to={`/projects/${p.id}/board`}
-                  className="bg-surface-3/50 border border-edge rounded-lg p-4 hover:border-brand-500/40 transition group"
+                  className="block bg-surface-3/45 border border-edge rounded-lg p-4 hover:border-brand-400/50 hover:bg-surface-3/70 transition group"
                 >
                   <div className="flex items-center gap-2">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ background: p.color || '#6366f1' }}
-                    />
-                    <span className="font-medium text-slate-100 group-hover:text-brand-300 truncate">
-                      {p.name}
-                    </span>
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color || '#6366f1' }} />
+                    <span className="font-medium text-slate-100 group-hover:text-brand-300 truncate">{p.name}</span>
+                    <span className="ml-auto text-xs text-slate-500">{p.completedCount}/{p.taskCount} tasks</span>
                   </div>
-                  <div className="text-xs text-slate-500 mt-2">
-                    {p._count?.tasks || 0} tasks · {p._count?.members || 0} members
+                  <div className="mt-3">
+                    <div className="h-2 rounded-full bg-surface-3 overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${p.completionRate}%`, background: p.completionRate === 100 ? '#34d399' : p.color || '#6366f1' }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1.5 flex items-center justify-between">
+                      <span>{p.taskCount} tasks · {p.memberCount} members</span>
+                      <span className="text-slate-400 font-medium">{p.completionRate}%</span>
+                    </div>
                   </div>
                 </Link>
               ))}
