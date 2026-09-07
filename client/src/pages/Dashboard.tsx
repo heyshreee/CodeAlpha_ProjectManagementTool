@@ -131,10 +131,10 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="bg-surface-2 border border-edge rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-slate-200 mb-4">Upcoming deadlines</h2>
+        <div className="bg-surface-2/90 border border-edge rounded-xl p-5">
+          <div className="flex items-center justify-between mb-5"><div><h2 className="text-base font-semibold text-slate-100">Upcoming deadlines</h2><p className="text-xs text-slate-500 mt-1">Next tasks on your calendar</p></div><span className="text-xs text-amber-400">{upcoming.length} due</span></div>
           {upcoming.length === 0 ? (
-            <div className="text-sm text-slate-500 py-8 text-center">Nothing due soon</div>
+            <div className="text-sm text-slate-500 py-10 text-center border border-dashed border-edge rounded-lg">Nothing due soon</div>
           ) : (
             <div className="space-y-3">
               {upcoming.map((t) => (
@@ -153,6 +153,33 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="bg-surface-2/90 border border-edge rounded-xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div><h2 className="text-base font-semibold text-slate-100">Recent activity</h2><p className="text-xs text-slate-500 mt-1">Latest changes across your projects</p></div>
+        </div>
+        {activity.length === 0 ? (
+          <div className="text-sm text-slate-500 py-8 text-center border border-dashed border-edge rounded-lg">No activity yet. Actions in your projects will show up here.</div>
+        ) : (
+          <div className="space-y-1">
+            {activity.map((a) => (
+              <div key={a.id} className="flex items-start gap-3 py-2.5 border-b border-edge/60 last:border-0">
+                <Avatar name={a.user.name} avatar={a.user.avatar} size={28} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-slate-300">
+                    <span className="font-medium text-slate-100">{a.user.name}</span>{' '}
+                    <span className="text-slate-500">{ACTIVITY_LABEL[a.action] || a.action.toLowerCase()}</span>
+                    {a.task?.title && <span className="text-slate-300"> “{a.task.title}”</span>}
+                    {a.details && <span className="text-slate-500"> — {a.details}</span>}
+                  </p>
+                  {a.project && <p className="text-xs text-slate-600 mt-0.5 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ background: a.project.color || '#6366f1' }} />{a.project.name}</p>}
+                </div>
+                <span className="text-xs text-slate-600 shrink-0">{timeAgo(a.createdAt)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
