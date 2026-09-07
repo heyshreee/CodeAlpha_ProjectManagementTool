@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { Project, ProjectRole } from '@/types';
 import Button from '@/components/ui/Button';
@@ -59,20 +59,36 @@ function CreateProjectModal({ open, onClose }: { open: boolean; onClose: () => v
 }
 
 export default function Projects() {
-  const [open, setOpen] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const [open, setOpen] = useState(params.get('new') === '1');
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<'all' | 'owned'>('all');
   const { data: projects, isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => api.get<Project[]>('/projects'),
   });
+  const filteredProjects = useMemo(() => (projects || []).filter((project) => {
+    const matchesQuery = `${project.name} ${project.description || ''}`.toLowerCase().includes(query.toLowerCase());
+    const matchesFilter = filter === 'all' || project.role === 'OWNER';
+    return matchesQuery && matchesFilter;
+  }), [projects, query, filter]);
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-6 max-w-[1500px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-100">Projects</h1>
-          <p className="text-sm text-slate-400">All the workspaces you belong to.</p>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-300 mb-2">Your workspace</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-100">Projects</h1>
+          <p className="text-sm text-slate-400 mt-1">Organize work, align your team, and keep momentum visible.</p>
         </div>
         <Button onClick={() => setOpen(true)}>+ New project</Button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search projects..." className="sm:max-w-sm" aria-label="Search projects" />
+        <div className="flex items-center gap-1 rounded-lg border border-edge bg-surface-2 p-1 w-fit">
+          {(['all', 'owned'] as const).map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${filter === item ? 'bg-surface-3 text-slate-100' : 'text-slate-500 hover:text-slate-300'}`}>{item === 'all' ? 'All projects' : 'Owned by me'}</button>)}
+        </div>
       </div>
 
       {isLoading ? (
@@ -82,9 +98,11 @@ export default function Projects() {
           <p className="mb-4">No projects yet.</p>
           <Button onClick={() => setOpen(true)}>Create your first project</Button>
         </div>
+      ) : filteredProjects.length === 0 ? (
+        <div className="bg-surface-2 border border-dashed border-edge rounded-xl p-12 text-center text-slate-500">No projects match your search.</div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(projects || []).map((p) => (
+          {filteredProjects.map((p) => (
             <Link
               key={p.id}
               to={`/projects/${p.id}/board`}
