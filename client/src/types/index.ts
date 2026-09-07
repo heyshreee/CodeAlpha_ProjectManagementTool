@@ -29,6 +29,16 @@ export interface Project {
   updatedAt: string;
   _count?: { tasks: number; members: number; boards: number };
   members?: ProjectMember[];
+  completedCount?: number;
+  taskCount?: number;
+  completionRate?: number;
+}
+
+export interface ProjectProgress extends Project {
+  taskCount: number;
+  memberCount: number;
+  completedCount: number;
+  completionRate: number;
 }
 
 export interface Label {
@@ -126,7 +136,8 @@ export interface DashboardStats {
   completedTasks: number;
   overdueTasks: number;
   upcomingDeadlines: (Task & { project: { id: string; name: string } })[];
-  recentProjects: Project[];
+  recentProjects: ProjectProgress[];
+  activity: Activity[];
 }
 
 export interface ProjectAnalytics {
