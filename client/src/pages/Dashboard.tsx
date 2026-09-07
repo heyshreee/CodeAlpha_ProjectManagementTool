@@ -56,7 +56,7 @@ export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
   useRealtime();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api.get<DashboardStats>('/analytics/dashboard'),
   });
