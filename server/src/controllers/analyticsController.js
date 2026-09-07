@@ -92,7 +92,7 @@ exports.dashboard = asyncHandler(async (req, res) => {
   ]);
 
   const today = new Date();
-  const [completed, myCompleted, overdue, upcoming] = await Promise.all([
+  const [completed, myCompleted, overdue, upcoming, perProjectTasks, recentActivity] = await Promise.all([
     prisma.task.count({
       where: { projectId: { in: projectIds }, status: 'DONE' },
     }),
@@ -110,7 +110,52 @@ exports.dashboard = asyncHandler(async (req, res) => {
       take: 5,
       include: { project: { select: { id: true, name: true } } },
     }),
+    projectIds.length
+      ? prisma.task.groupBy({
+          by: ['projectId', 'status'],
+          where: { projectId: { in: projectIds } },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+    projectIds.length
+      ? prisma.activity.findMany({
+          where: { projectId: { in: projectIds } },
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+          include: {
+            user: { select: { id: true, name: true, avatar: true } },
+            project: { select: { id: true, name: true, color: true } },
+            task: { select: { id: true, title: true } },
+          },
+        })
+      : Promise.resolve([]),
   ]);
+
+  // Per-project completion so the dashboard can render progress bars.
+  const memberCounts = await prisma.projectMember.groupBy({
+    by: ['projectId'],
+    where: { projectId: { in: projectIds } },
+    _count: { _all: true },
+  });
+  const perProject = new Map();
+  for (const row of perProjectTasks) {
+    if (!perProject.has(row.projectId)) perProject.set(row.projectId, { DONE: 0 });
+    perProject.get(row.projectId)[row.status] = (perProject.get(row.projectId)[row.status] || 0) + row._count._all;
+  }
+  const memberMap = new Map(memberCounts.map((m) => [m.projectId, m._count._all]));
+
+  const recentProjects = projects.slice(0, 4).map((p) => {
+    const status = perProject.get(p.id) || {};
+    const taskCount = Object.values(status).reduce((a, b) => a + b, 0);
+    const completedCount = status.DONE || 0;
+    return {
+      ...p,
+      taskCount,
+      memberCount: memberMap.get(p.id) || 0,
+      completedCount,
+      completionRate: taskCount ? Math.round((completedCount / taskCount) * 100) : 0,
+    };
+  });
 
   return res.json({
     success: true,
@@ -122,7 +167,8 @@ exports.dashboard = asyncHandler(async (req, res) => {
       completedTasks: completed,
       overdueTasks: overdue,
       upcomingDeadlines: upcoming,
-      recentProjects: projects.slice(0, 4),
+      recentProjects,
+      activity: recentActivity,
     },
   });
 });
