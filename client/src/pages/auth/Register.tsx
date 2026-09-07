@@ -17,6 +17,8 @@ export default function Register() {
     setError('');
     setLoading(true);
     const fd = new FormData(e.target as HTMLFormElement);
+    const firstName = String(fd.get('firstName') || '').trim();
+    const lastName = String(fd.get('lastName') || '').trim();
     const password = String(fd.get('password'));
     const confirm = String(fd.get('confirm'));
     if (password !== confirm) {
@@ -25,7 +27,7 @@ export default function Register() {
       return;
     }
     try {
-      const user = await register(String(fd.get('name')), String(fd.get('email')), password);
+      const user = await register(`${firstName} ${lastName}`.trim(), String(fd.get('email')), password);
       toast(`Welcome, ${user.name}!`, 'success');
       navigate('/');
     } catch (err: any) {
@@ -39,9 +41,14 @@ export default function Register() {
     <AuthLayout title="Create your account" subtitle="Start collaborating in minutes">
       <form onSubmit={onSubmit} className="space-y-4">
         {error && <div className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2">{error}</div>}
-        <Field label="Full name">
-          <Input name="name" required placeholder="Sriram" autoComplete="name" />
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="First name">
+            <Input name="firstName" required placeholder="Alex" autoComplete="given-name" />
+          </Field>
+          <Field label="Last name">
+            <Input name="lastName" required placeholder="Morgan" autoComplete="family-name" />
+          </Field>
+        </div>
         <Field label="Email">
           <Input name="email" type="email" required placeholder="you@company.com" autoComplete="email" />
         </Field>
