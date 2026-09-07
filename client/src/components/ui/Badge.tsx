@@ -12,17 +12,27 @@ const statusStyles: Record<string, string> = {
   DONE: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
 };
 
-export function Badge({ children, tone = 'default' }: { children: React.ReactNode; tone?: string }) {
-  const style =
-    tone === 'priority'
-      ? priorityStyles[String(children)] || priorityStyles.MEDIUM
-      : tone === 'status'
-      ? statusStyles[String(children)] || statusStyles.TODO
-      : 'bg-surface-3 text-slate-400 border-edge';
+export function PriorityBadge({ priority }: { priority: string }) {
   return (
-    <span
-      className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium border ${style}`}
-    >
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium border ${priorityStyles[priority] || priorityStyles.MEDIUM}`}>
+      {priority}
+    </span>
+  );
+}
+
+export function StatusBadge({ status }: { status: string }) {
+  return (
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium border ${statusStyles[status] || statusStyles.TODO}`}>
+      {status.replace('_', ' ')}
+    </span>
+  );
+}
+
+export function Badge({ children, tone = 'default' }: { children: React.ReactNode; tone?: string }) {
+  if (tone === 'priority') return <PriorityBadge priority={String(children)} />;
+  if (tone === 'status') return <StatusBadge status={String(children)} />;
+  return (
+    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium border bg-surface-3 text-slate-400 border-edge">
       {children}
     </span>
   );
