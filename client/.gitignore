@@ -6,3 +6,5 @@ dist-ssr
 .env.*
 !.env.example
 .vite
+*.tsbuildinfo
+vite.config.d.ts
