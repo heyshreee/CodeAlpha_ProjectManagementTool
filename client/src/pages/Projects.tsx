@@ -6,7 +6,7 @@ import type { Project, ProjectRole } from '@/types';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { Input, Textarea, Field } from '@/components/ui/Input';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 import { toast } from '@/lib/toast';
 
 const roleStyle: Record<ProjectRole, string> = {
@@ -92,7 +92,7 @@ export default function Projects() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Spinner size={24} /></div>
+        <div className="flex justify-center py-16"><LoaderHelix speed={800} /></div>
       ) : projects && projects.length === 0 ? (
         <div className="bg-surface-2 border border-edge rounded-lg p-10 text-center text-slate-400">
           <p className="mb-3 text-sm">No projects yet.</p>

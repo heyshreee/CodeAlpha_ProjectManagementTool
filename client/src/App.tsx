@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RequireAuth, GuestOnly } from '@/components/auth/Guards';
 import AppShell from '@/components/layout/AppShell';
@@ -6,42 +6,36 @@ import { ToastHost } from '@/lib/toast';
 import { useRealtime } from '@/hooks/useRealtime';
 import { useAuthStore } from '@/stores/authStore';
 import { applyAccent, getLocalAccent, isAccentId, normalizeAccent } from '@/lib/accent';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
 import ResetPassword from '@/pages/auth/ResetPassword';
-import Dashboard from '@/pages/Dashboard';
-import Projects from '@/pages/Projects';
-import ProjectLayout from '@/pages/project/ProjectLayout';
-import BoardPage from '@/pages/project/BoardPage';
-import Members from '@/pages/project/Members';
-import Activity from '@/pages/project/Activity';
-import Calendar from '@/pages/Calendar';
-import Search from '@/pages/Search';
-import Settings from '@/pages/Settings';
-import MyTasks from '@/pages/MyTasks';
-import Notifications from '@/pages/Notifications';
+import NotFound from '@/pages/NotFound';
 
-// Recharts is heavy — load analytics on demand.
+// Lazy chunks keep the initial bundle lean — analytics / charts are heavy,
+// and route pages only pull in their deps when first opened.
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Projects = lazy(() => import('@/pages/Projects'));
+const ProjectLayout = lazy(() => import('@/pages/project/ProjectLayout'));
+const BoardPage = lazy(() => import('@/pages/project/BoardPage'));
+const Members = lazy(() => import('@/pages/project/Members'));
+const Activity = lazy(() => import('@/pages/project/Activity'));
 const Analytics = lazy(() => import('@/pages/project/Analytics'));
+const Calendar = lazy(() => import('@/pages/Calendar'));
+const Search = lazy(() => import('@/pages/Search'));
+const Settings = lazy(() => import('@/pages/Settings'));
+const MyTasks = lazy(() => import('@/pages/MyTasks'));
+const Notifications = lazy(() => import('@/pages/Notifications'));
 
 const PageLoader = () => (
-  <div className="flex justify-center py-16">
-    <Spinner size={24} />
+  <div className="h-full flex items-center justify-center py-16">
+    <LoaderHelix speed={900} />
   </div>
 );
 
-function NotFound() {
-  return (
-    <div className="flex flex-col items-center justify-center h-full text-slate-400">
-      <h1 className="text-3xl font-bold text-slate-200 mb-2">404</h1>
-      <p className="mb-4">Page not found</p>
-      <Link to="/" className="text-brand-400 hover:text-brand-300">Back to dashboard</Link>
-    </div>
-  );
-}
+const lazyPage = (el: ReactNode) => <Suspense fallback={<PageLoader />}>{el}</Suspense>;
 
 export default function App() {
   const user = useAuthStore((s) => s.user);
@@ -79,20 +73,20 @@ export default function App() {
             </RequireAuth>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="tasks" element={<MyTasks />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="projects/:id" element={<ProjectLayout />}>
+          <Route index element={lazyPage(<Dashboard />)} />
+          <Route path="projects" element={lazyPage(<Projects />)} />
+          <Route path="tasks" element={lazyPage(<MyTasks />)} />
+          <Route path="notifications" element={lazyPage(<Notifications />)} />
+          <Route path="projects/:id" element={lazyPage(<ProjectLayout />)}>
             <Route index element={<Navigate to="board" replace />} />
-            <Route path="board" element={<BoardPage />} />
-            <Route path="members" element={<Members />} />
-            <Route path="activity" element={<Activity />} />
-            <Route path="analytics" element={<Suspense fallback={<PageLoader />}><Analytics /></Suspense>} />
+            <Route path="board" element={lazyPage(<BoardPage />)} />
+            <Route path="members" element={lazyPage(<Members />)} />
+            <Route path="activity" element={lazyPage(<Activity />)} />
+            <Route path="analytics" element={lazyPage(<Analytics />)} />
           </Route>
-          <Route path="calendar" element={<Calendar />} />
-          <Route path="search" element={<Search />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="calendar" element={lazyPage(<Calendar />)} />
+          <Route path="search" element={lazyPage(<Search />)} />
+          <Route path="settings" element={lazyPage(<Settings />)} />
           <Route path="*" element={<NotFound />} />
         </Route>
 

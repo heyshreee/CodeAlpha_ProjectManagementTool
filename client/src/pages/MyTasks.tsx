@@ -6,7 +6,7 @@ import type { Project, Task } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
 import { PriorityBadge, StatusBadge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 
 const tabs = ['ALL', 'TODAY', 'UPCOMING', 'OVERDUE', 'COMPLETED'] as const;
 type Tab = typeof tabs[number];
@@ -57,7 +57,7 @@ export default function MyTasks() {
         </div>
       </div>
 
-      {isLoading && <div className="flex justify-center py-16"><Spinner size={24} /></div>}
+      {isLoading && <div className="flex justify-center py-16"><LoaderHelix speed={800} /></div>}
       {isError && <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-6 text-center text-[13px] text-slate-300">We couldn&apos;t load your tasks. Please try again.</div>}
       {!isLoading && !isError && tasks.length === 0 && <div className="rounded-lg border border-dashed border-edge p-10 text-center text-sm text-slate-500">No tasks match this view.</div>}
       {!isLoading && !isError && tasks.length > 0 && (

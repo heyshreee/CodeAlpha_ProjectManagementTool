@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { useProject } from '@/hooks/useProject';
 import type { ProjectAnalytics, ProjectRole } from '@/types';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 import {
   BarChart,
   Bar,
@@ -39,7 +39,7 @@ export default function Analytics() {
     queryFn: () => api.get<ProjectAnalytics>(`/projects/${id}/analytics`),
   });
 
-  if (isLoading || ploading) return <div className="py-8 flex justify-center"><Spinner size={28} /></div>;
+  if (isLoading || ploading) return <div className="py-8 flex justify-center"><LoaderHelix speed={800} /></div>;
   if (!data) return <div className="text-slate-400">No analytics available.</div>;
 
   const statusData = Object.entries(data.byStatus).map(([name, value]) => ({ name: name.replace('_', ' '), value }));

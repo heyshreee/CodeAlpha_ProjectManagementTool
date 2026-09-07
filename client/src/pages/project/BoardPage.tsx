@@ -21,24 +21,32 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useState, useMemo, useEffect } from 'react';
 import { api } from '@/lib/api';
 import type { Board, Task } from '@/types';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 import { toast } from '@/lib/toast';
 import TaskCard from './TaskCard';
 import { TaskDetail } from './TaskDetail';
 import { NewTaskInput } from './NewTaskInput';
-import { useProjectMembers } from '@/hooks/useProject';
+import { useProject } from '@/hooks/useProject';
 
 // --- Sortable task card wrapper ---
-function SortableTask({ task, onClick }: { task: Task; onClick: () => void }) {
+function SortableTask({
+  task,
+  onClick,
+  disabled,
+}: {
+  task: Task;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
+    disabled,
   });
   return (
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      {...attributes}
-      {...listeners}
+      {...(disabled ? { className: 'cursor-default' } : { ...attributes, ...listeners })}
       className={isDragging ? 'opacity-40' : ''}
     >
       <TaskCard task={task} onClick={onClick} />
@@ -51,11 +59,13 @@ function BoardColumn({
   tasks,
   onTaskClick,
   autoOpenTaskInput = false,
+  canDrag,
 }: {
   column: { id: string; title: string; color?: string | null };
   tasks: Task[];
   onTaskClick: (task: Task) => void;
   autoOpenTaskInput?: boolean;
+  canDrag?: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const items = tasks.map((t) => t.id);
@@ -77,7 +87,7 @@ function BoardColumn({
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         <div className="px-1.5 pb-1.5 space-y-1.5 flex-1 overflow-y-auto">
           {tasks.map((t) => (
-            <SortableTask key={t.id} task={t} onClick={() => onTaskClick(t)} />
+            <SortableTask key={t.id} task={t} onClick={() => onTaskClick(t)} disabled={!canDrag} />
           ))}
         </div>
       </SortableContext>
@@ -94,7 +104,8 @@ export default function BoardPage() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selected, setSelected] = useState<Task | null>(null);
 
-  useProjectMembers(id);
+  const { data: project } = useProject(id);
+  const isViewer = project?.role === 'VIEWER';
 
   const { data, isLoading } = useQuery({
     queryKey: ['boards', id],
@@ -108,6 +119,7 @@ export default function BoardPage() {
   });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const activeSensors = isViewer ? [] : sensors;
 
   // Always reconcile optimistic drag state with freshly fetched data so edits
   // made elsewhere (e.g. the task drawer, another tab, realtime events) show up
@@ -163,7 +175,7 @@ export default function BoardPage() {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Spinner size={24} />
+        <LoaderHelix speed={800} />
       </div>
     );
   }
@@ -242,7 +254,7 @@ export default function BoardPage() {
   return (
     <div className="h-full flex flex-col">
       <DndContext
-        sensors={sensors}
+        sensors={activeSensors}
         collisionDetection={closestCorners}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
@@ -256,6 +268,7 @@ export default function BoardPage() {
               column={col}
               tasks={(col.tasks || []) as Task[]}
               autoOpenTaskInput={i === 0 && newTaskIntent}
+              canDrag={!isViewer}
               onTaskClick={(t) => {
                 setSelected(t);
                 scrollToTask(t.id);

@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { Notification } from '@/types';
-import Spinner from '@/components/ui/Spinner';
 import Button from '@/components/ui/Button';
 
 function groupLabel(date: string) {

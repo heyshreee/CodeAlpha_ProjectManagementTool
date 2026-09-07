@@ -10,6 +10,7 @@ import { toast } from '@/lib/toast';
 
 const statuses: TaskStatus[] = ['BACKLOG', 'TODO', 'IN_PROGRESS', 'DONE'];
 const priorities: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+const LABEL_COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
 export function TaskDetail({
   task,
@@ -24,6 +25,9 @@ export function TaskDetail({
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [comment, setComment] = useState('');
+  const [labelOpen, setLabelOpen] = useState(false);
+  const [labelName, setLabelName] = useState('');
+  const [labelColor, setLabelColor] = useState(LABEL_COLORS[0]);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -121,6 +125,24 @@ export function TaskDetail({
       ? t.labels!.filter((tl) => tl.label.id !== labelId).map((tl) => tl.label.id)
       : [...(t.labels?.map((tl) => tl.label.id) || []), labelId];
     await patch({ labelIds: ids });
+  }
+
+  async function createLabel() {
+    const name = labelName.trim();
+    if (!name) return;
+    try {
+      const created = await api.post<{ id: string }>(`/projects/${projectId}/labels`, {
+        name,
+        color: labelColor,
+      });
+      qc.invalidateQueries({ queryKey: ['labels', projectId] });
+      setLabelName('');
+      setLabelColor(LABEL_COLORS[0]);
+      setLabelOpen(false);
+      await patch({ labelIds: [...(t.labels?.map((tl) => tl.label.id) || []), created.id] });
+    } catch (err: any) {
+      toast(err.message || 'Failed to create label', 'error');
+    }
   }
 
   async function removeTask() {
@@ -250,6 +272,46 @@ export function TaskDetail({
               })}
               {(labels || []).length === 0 && <span className="text-xs text-slate-500">No labels yet</span>}
             </div>
+            {canEdit && !labelOpen && (
+              <button
+                onClick={() => setLabelOpen(true)}
+                className="mt-1.5 text-xs text-brand-300 hover:text-brand-200"
+              >
+                + New label
+              </button>
+            )}
+            {canEdit && labelOpen && (
+              <div className="mt-1.5 space-y-1.5">
+                <div className="flex gap-1">
+                  <Input
+                    autoFocus
+                    value={labelName}
+                    onChange={(e) => setLabelName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && createLabel()}
+                    placeholder="Label name"
+                    className="py-1.5 text-[13px]"
+                  />
+                  <button
+                    onClick={createLabel}
+                    disabled={!labelName.trim()}
+                    className="px-2.5 text-[13px] bg-brand-600 hover:bg-brand-500 rounded-md text-white disabled:opacity-40"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {LABEL_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      aria-label={`Label color ${c}`}
+                      onClick={() => setLabelColor(c)}
+                      className={`w-4 h-4 rounded-full transition ${labelColor === c ? 'ring-2 ring-offset-1 ring-offset-surface-2 ring-white/70' : 'opacity-60 hover:opacity-100'}`}
+                      style={{ background: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Attachments */}

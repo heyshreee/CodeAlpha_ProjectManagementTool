@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { Task } from '@/types';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 import { PriorityBadge, StatusBadge } from '@/components/ui/Badge';
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -188,7 +188,7 @@ export default function Calendar() {
 
       {isLoading && (
         <div className="flex justify-center py-16">
-          <Spinner size={24} />
+          <LoaderHelix speed={800} />
         </div>
       )}
       {isError && (

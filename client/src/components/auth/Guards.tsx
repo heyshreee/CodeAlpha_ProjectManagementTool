@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 
 export function useInitAuth() {
   const init = useAuthStore((s) => s.init);
@@ -18,7 +18,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   if (!initialized) {
     return (
       <div className="h-full flex items-center justify-center bg-surface">
-        <Spinner size={32} />
+        <LoaderHelix speed={700} />
       </div>
     );
   }
@@ -32,7 +32,7 @@ export function GuestOnly({ children }: { children: ReactNode }) {
   if (!initialized) {
     return (
       <div className="h-full flex items-center justify-center bg-surface">
-        <Spinner size={32} />
+        <LoaderHelix speed={700} />
       </div>
     );
   }

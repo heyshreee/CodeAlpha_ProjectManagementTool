@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import type { DashboardStats } from '@/types';
-import Spinner from '@/components/ui/Spinner';
+import LoaderHelix from '@/components/ui/LoaderHelix';
 import Button from '@/components/ui/Button';
 import Avatar from '@/components/ui/Avatar';
 import { useRealtime } from '@/hooks/useRealtime';
@@ -64,7 +64,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Spinner size={24} />
+        <LoaderHelix speed={800} />
       </div>
     );
   }
