@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, uploadFile } from '@/lib/api';
+import { api, uploadFile, authStore, ApiError } from '@/lib/api';
 import { useProject, useProjectMembers } from '@/hooks/useProject';
 import type { Task, Comment, Attachment, TaskPriority, TaskStatus, ProjectRole } from '@/types';
 import Avatar from '@/components/ui/Avatar';
@@ -24,12 +24,24 @@ export function TaskDetail({
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [comment, setComment] = useState('');
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (task) {
       setTitle(t.title);
       setDesc(t.description || '');
     }
+  }, [task?.id]);
+
+  // Drawer a11y: focus the panel on open, restore focus / close on Escape.
+  useEffect(() => {
+    if (!task) return;
+    requestAnimationFrame(() => closeRef.current?.focus());
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [task?.id]);
 
   const { data: project } = useProject(projectId);
@@ -125,13 +137,47 @@ export function TaskDetail({
 
   const fmt = (d?: string | null) => (d ? new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set');
 
+  // Downloads require the Authorization header, which a plain <a href> cannot
+  // send. Fetch the file through the authenticated client and open it as a blob
+  // so previews (images/PDF) and downloads work reliably.
+  async function openAttachment(a: Attachment) {
+    try {
+      const token = authStore.getToken();
+      const res = await fetch(`/api/v1/tasks/${t.id}/attachments/${a.id}/download`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new ApiError(res.status, body?.message || 'Could not load file');
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const preview = (a.mimeType?.startsWith('image/') || a.mimeType === 'application/pdf');
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.target = '_blank';
+      anchor.rel = 'noreferrer';
+      if (preview) {
+        anchor.click();
+        URL.revokeObjectURL(url);
+      } else {
+        anchor.download = a.originalName || 'download';
+        anchor.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err: any) {
+      toast(err.message || 'Failed to open file', 'error');
+    }
+  }
+
   return (
-    <div className="fixed inset-0 z-40 flex justify-end">
+    <div className="fixed inset-0 z-40 flex justify-end" role="dialog" aria-modal="true" aria-label={`Task ${t.title}`}>
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-lg bg-surface-2 border-l border-edge h-full flex flex-col animate-fade-in shadow-2xl">
         <div className="px-5 py-3 border-b border-edge flex items-center justify-between">
           <span className="text-xs text-slate-500">TASK-{t.id.slice(-4).toUpperCase()}</span>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-200 text-xl">×</button>
+          <button ref={closeRef} onClick={onClose} aria-label="Close task details" className="text-slate-400 hover:text-slate-200 text-xl">×</button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
@@ -223,14 +269,14 @@ export function TaskDetail({
               {(attachments || []).map((a) => (
                 <div key={a.id} className="flex items-center gap-2 bg-surface-3 border border-edge rounded-lg px-3 py-2 text-sm">
                   <span>📄</span>
-                  <a
-                    href={`/api/v1/tasks/${t.id}/attachments/${a.id}/download`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-1 truncate text-slate-200 hover:text-brand-300"
+                  <button
+                    type="button"
+                    onClick={() => openAttachment(a)}
+                    className="flex-1 truncate text-left text-slate-200 hover:text-brand-300"
+                    title={a.originalName || 'Open file'}
                   >
                     {a.originalName}
-                  </a>
+                  </button>
                   <span className="text-[11px] text-slate-500">{Math.round(a.size / 1024)} KB</span>
                 </div>
               ))}
