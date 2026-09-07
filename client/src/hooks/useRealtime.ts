@@ -42,9 +42,13 @@ export function useRealtime() {
       'activity.created': 'activities',
     };
 
-    for (const [event, key] of Object.entries(invalids)) {
+    // Dashboard aggregates project/task totals, so any of these events should
+    // refresh the workspace overview ("Recent projects", counts, deadlines).
+    for (const event of Object.keys(invalids)) {
       socket.on(event, () => {
-        qc.invalidateQueries({ queryKey: [key] });
+        qc.invalidateQueries({ queryKey: [invalids[event]] });
+        qc.invalidateQueries({ queryKey: ['dashboard'] });
+        qc.invalidateQueries({ queryKey: ['projects'] });
       });
     }
 
