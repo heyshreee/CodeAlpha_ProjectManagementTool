@@ -3,9 +3,4 @@ dist/
 .env
 .env.*
 !.env.example
-server/generated/prisma/
 *.log
-*.db
-server/uploads/
-web/.next/
-web/tsconfig.tsbuildinfo
