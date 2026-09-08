@@ -123,6 +123,17 @@ code {
   color: var(--text);
 }
 
+.github-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.github-nav svg {
+  flex: none;
+  fill: currentColor;
+}
+
 .menu-toggle {
   display: none;
   background: none;

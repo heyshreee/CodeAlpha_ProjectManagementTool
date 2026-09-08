@@ -8,6 +8,8 @@ Built as a **CodeAlpha internship project**.
 
 ![License: Internal](https://img.shields.io/badge/license-internal-blue) ![PRs: welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
 
+**Documentation site:** [https://heyshreee.github.io/CodeAlpha_ProjectManagementTool/](https://heyshreee.github.io/CodeAlpha_ProjectManagementTool/)
+
 </div>
 
 ---
