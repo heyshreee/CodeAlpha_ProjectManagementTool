@@ -1,4 +1,5 @@
 const http = require('http');
+const { execSync } = require('child_process');
 const app = require('./src/app');
 const env = require('./src/config/env');
 const logger = require('./src/lib/logger');
@@ -14,6 +15,30 @@ if (process.env.NODE_ENV !== 'test') {
   setInterval(runDeadlineReminders, 60 * 60 * 1000).unref();
 }
 
+function listen(port) {
+  return new Promise((resolve, reject) => {
+    httpServer.once('error', reject);
+    httpServer.listen(port, () => {
+      logger.info(`ProjectFlow API listening on http://localhost:${port}`);
+      resolve();
+    });
+  });
+}
+
+function killPortOccupant(port) {
+  try {
+    const output = execSync(`netstat -ano | findstr :${port} | findstr LISTENING`, { encoding: 'utf8', stdio: 'pipe' });
+    const match = output.match(/LISTENING\s+(\d+)/);
+    if (!match) return;
+    const pid = match[1];
+    if (String(process.pid) === pid) return;
+    logger.warn(`Killing stale process (PID ${pid}) occupying port ${port}`);
+    execSync(`taskkill /F /PID ${pid}`, { stdio: 'pipe' });
+  } catch {
+    // No process found or kill failed — port may already be free.
+  }
+}
+
 async function main() {
   try {
     await prisma.$connect();
@@ -23,9 +48,25 @@ async function main() {
     process.exit(1);
   }
 
-  httpServer.listen(env.port, () => {
-    logger.info(`ProjectFlow API listening on http://localhost:${env.port}`);
-  });
+  try {
+    await listen(env.port);
+  } catch (error) {
+    if (error.code !== 'EADDRINUSE') throw error;
+    killPortOccupant(env.port);
+    try {
+      await listen(env.port);
+    } catch {
+      const nextPort = env.port + 1;
+      logger.warn(`Port ${env.port} is still in use — trying ${nextPort}`);
+      try {
+        await listen(nextPort);
+      } catch (retryError) {
+        if (retryError.code !== 'EADDRINUSE') throw retryError;
+        logger.error(`Ports ${env.port} and ${nextPort} are both in use`);
+        process.exit(1);
+      }
+    }
+  }
 }
 
 main();

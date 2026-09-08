@@ -6,6 +6,9 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const apiPort = process.env.PORT || '3000'
+const apiTarget = `http://localhost:${apiPort}`
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -17,15 +20,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: apiTarget,
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://localhost:3000',
+        target: apiTarget,
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'http://localhost:3000',
+        target: apiTarget,
         ws: true,
         changeOrigin: true,
       },
