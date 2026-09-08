@@ -1,27 +1,44 @@
+<div align="center">
+
 # ProjectFlow
 
-A full-stack project-management workspace — kanban boards, task tracking, team roles, real-time collaboration, notifications, and analytics — built as a fast, compact, GitHub/Linear-class developer tool.
+**A full-stack project-management workspace — kanban boards, task tracking, team roles, real-time collaboration, notifications, and analytics.**
 
 Built as a **CodeAlpha internship project**.
 
+![License: Internal](https://img.shields.io/badge/license-internal-blue) ![PRs: welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+
+</div>
+
 ---
 
-## Contents
+## Table of Contents
 
-- [Highlights](#highlights)
-- [Architecture](#architecture)
+- [About](#about)
+- [Feature Highlights](#feature-highlights)
 - [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Running All Three Apps](#running-all-three-apps)
-- [Configuration](#configuration)
-- [Scripts](#scripts)
-- [API Overview](#api-overview)
-- [Security Model](#security-model)
+- [Repository Layout](#repository-layout)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [Deployment](#deployment)
+- [Security](#security)
 - [Testing](#testing)
 
 ---
 
-## Highlights
+## About
+
+ProjectFlow is a production-minded project management application with three distinct surfaces:
+
+| Surface | What it is | Where it runs |
+| ------- | ---------- | ------------- |
+| **Workspace** (`client/`) | The product — boards, tasks, dashboards, teams | `http://localhost:5173` |
+| **API** (`server/`) | REST API `/api/v1` + Socket.IO realtime bus | `http://localhost:3000` |
+| **Landing page** (`web/`) | Marketing site with auth-aware CTAs | `http://localhost:5000` |
+
+It is styled as a fast, compact, GitHub/Linear-class developer tool: a dense dark UI, keyboard-friendly editing, drag-and-drop boards, and instant updates across teammates.
+
+## Feature Highlights
 
 **Workspace**
 - Dashboard with live stats: active / assigned / overdue tasks, upcoming deadlines, per-project completion bars, and a recent-activity feed
@@ -41,219 +58,116 @@ Built as a **CodeAlpha internship project**.
 - Deadline-reminder scheduler that notifies assignees/creators the day before
 
 **Real-time collaboration**
-- Socket.IO pushes notifications and activity instantly to per-user and per-project channels
+- Socket.IO pushes notifications and activity instantly to per-user (`user:{id}`) and per-project (`project:{id}`) channels
 
 **Appearance**
 - Six accent themes (Violet, Ocean, Mint, Rose, Amber, Cyan), persisted per user and restored on any device
-
----
-
-## Architecture
-
-ProjectFlow is a monorepo with three independent applications:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  web/      Public landing page (React 19 + Vite)            │
-│            Port 5000 · auth-aware "Go to dashboard" button  │
-├─────────────────────────────────────────────────────────────┤
-│  client/   Workspace SPA (React 19 + Vite + Tailwind)       │
-│            Port 5173 · the actual product UI                │
-├─────────────────────────────────────────────────────────────┤
-│  server/   REST API /api/v1 + Socket.IO event bus           │
-│            Port 3000 · Express 5 + Prisma 6                 │
-└─────────────────────────────────────────────────────────────┘
-```
-
-- **client/** — React SPA. Compact dark UI, single Tailwind v4 stylesheet, React Router 7 nested routes, TanStack Query, Zustand, dnd-kit, Recharts, socket.io-client.
-- **server/** — Express REST API under `/api/v1` plus a Socket.IO realtime bridge. All authorization is enforced server-side via role-hierarchy guards.
-- **web/** — Marketing/landing page. React 19 + Vite. On load it calls `POST /api/v1/auth/refresh` (proxied by Vite to the API) with the session cookie; when a session is active the nav/CTAs switch from "Sign in / Get started" to **"Go to dashboard"**.
-
-**Cross-app data flow**
-
-- **Auth:** short-lived JWT access tokens (15 min) + rotating httpOnly refresh-token cookie (`pf_refresh`, 7 days) with reuse detection that revokes the whole session family.
-- **Authorization:** every project/task/attachment route passes a role-hierarchy guard (`ensureProjectAccess` / `ensureTaskAccess` / `ensureAttachmentAccess`) that doubles as BOLA/IDOR protection.
-- **Real time:** HTTP handlers write to the DB and emit via a `realtime.js` bridge into Socket.IO rooms (`user:{id}`, `project:{id}`); the client mirrors state optimistically.
-
----
 
 ## Tech Stack
 
 | Layer      | Technology |
 | ---------- | ---------- |
-| Frontend   | React 19, TypeScript, Vite, Tailwind CSS v4, React Router 7, TanStack Query, Zustand, dnd-kit, Recharts, socket.io-client |
-| Backend    | Node.js, Express 5, Prisma 6, Socket.IO, zod, argon2, jsonwebtoken, nodemailer, pino, helmet |
-| Storage    | SQLite (dev/CI) — PostgreSQL-ready schema; Cloudinary CDN for uploads/avatars |
+| Client     | React 19, TypeScript, Vite, Tailwind CSS v4, React Router 7, TanStack Query, Zustand, dnd-kit, Recharts, socket.io-client |
+| API        | Node.js, Express 5, Prisma 6, Socket.IO, zod, argon2, jsonwebtoken, nodemailer, pino, helmet |
+| Landing    | React 19, TypeScript, Vite |
 | Database   | SQLite (dev/CI) — PostgreSQL-ready schema |
-| Testing    | Vitest + Supertest (server), TypeScript validation + Vite build (client/web) |
+| Storage    | Local disk (dev) + Cloudinary CDN (production uploads/avatars) |
+| Testing    | Vitest + Supertest (API) · ESLint + Vite build (client/landing) |
 
----
+## Repository Layout
 
-## Getting Started
+```
+├── client/        React SPA — the workspace product UI
+├── server/        Express REST API (/api/v1) + Socket.IO + Prisma
+│   ├── prisma/    Schema (SQLite dev / PostgreSQL prod) + migrations
+│   ├── api/       Vercel serverless entry (production)
+│   └── test/      Vitest + Supertest suites
+├── web/           React + Vite landing page (auth-aware navigation)
+├── docs/          Full project documentation (see below)
+└── .env.example   Environment template
+```
 
-### Prerequisites
+## Quick Start
 
-- Node.js 20+
-- npm
+> Prerequisites: Node.js 20+, npm
 
-### 1. Backend API
+**1. API**
 
 ```bash
 cd server
 npm install
 cp .env.example .env
-npx prisma db push   # creates SQLite dev.db + generates the Prisma client
-npm run dev          # API on http://localhost:3000
+npx prisma db push     # creates SQLite dev.db + generates the Prisma client
+npm run dev            # API on http://localhost:3000
 ```
 
-### 2. Workspace (client)
+**2. Workspace**
 
 ```bash
 cd client
 npm install
-npm run dev          # SPA on http://localhost:5173
+npm run dev            # SPA on http://localhost:5173
 ```
 
-Open http://localhost:5173, register an account, and create your first project.
-
-### 3. Public landing page
+**3. Landing page**
 
 ```bash
 cd web
 npm install
-npm run dev          # landing page on http://localhost:5000
+npm run dev            # landing page on http://localhost:5000
 ```
 
-The `web/` app is a standalone **React + Vite** landing page. It proxies `/api` to the backend at `http://localhost:3000` so it can detect an active session and swap the navigation to a **"Go to dashboard"** button that links into the workspace at `http://localhost:5173`.
+Open `http://localhost:5173`, register an account, and create your first project. Full setup details in [`docs/getting-started.md`](docs/getting-started.md).
 
-### Running all three apps
+## Documentation
 
-Open three terminals and run the three `npm run dev` commands above:
+The `docs/` directory covers the entire project:
 
-| App      | URL                  |
-| -------- | -------------------- |
-| Landing  | http://localhost:5000 |
-| Workspace| http://localhost:5173 |
-| API      | http://localhost:3000 |
+| Document | Covers |
+| -------- | ------ |
+| [Home](docs/index.md) | Documentation homepage; project intent and the three surfaces |
+| [Getting Started](docs/getting-started.md) | Local development setup, ports, first-run walkthrough |
+| [Architecture](docs/architecture.md) | Monorepo layout, request flow, realtime event bus |
+| [Workspace (client)](docs/client.md) | Pages, routing, state management, realtime hooks |
+| [API (server)](docs/api.md) | Auth model, full endpoint map, storage drivers |
+| [Landing page (web)](docs/web.md) | Landing page features and auth-aware CTA behavior |
+| [Database](docs/database.md) | Prisma schema, models, enums, SQLite ↔ PostgreSQL |
+| [Security](docs/security.md) | Threat model, auth flows, BOLA/IDOR, upload hardening |
+| [Testing](docs/testing.md) | Test suites, how to run them, coverage areas |
+| [Deployment](docs/deployment.md) | Vercel, Postgres (Neon), Cloudinary, env config |
 
----
+## Deployment
 
-## Deploying to Vercel
+Each surface deploys as its own **Vercel project**:
 
-Each app deploys as its **own Vercel project** (monorepo). Create three projects on vercel.com and, for each, set **Root Directory** to the subfolder and paste its environment variables.
+1. **`server/`** — serverless Express (`api/index.js`) + PostgreSQL (Neon) + Cloudinary for uploads
+2. **`client/`** — Vite SPA; rewrites `/api`, `/uploads`, `/socket.io` to the API project
+3. **`web/`** — Vite landing page; rewrite `/api` to the API project
 
-| Project (root dir) | Framework | Build command  | Vercel config      |
-| ------------------ | --------- | -------------- | ------------------ |
-| `server/`          | Other     | `npx prisma generate` | `server/vercel.json` + `server/api/index.js` |
-| `client/`          | Vite      | `npm run build` | `client/vercel.json` (rewrites `/api`, `/uploads`, `/socket.io` → API project) |
-| `web/`             | Vite      | `npm run build` | `web/vercel.json` (rewrite `/api` → API project) |
+Full instructions, the required env variables, and known serverless limitations are in [`docs/deployment.md`](docs/deployment.md).
 
-### Required setup checklist
+**Documentation site** — the `docs/` folder also publishes as a GitHub Pages site. In **Repository → Settings → Pages**, set *Source: Deploy from a branch*, *Branch: `main`*, *Folder: `/docs`*. The site appears at `https://<username>.github.io/<repo>/` with [`docs/index.md`](docs/index.md) as the homepage.
 
-1. **Database** — Vercel serverless can't use the SQLite file. Provision PostgreSQL (Vercel Postgres, Neon, or Supabase), then in `server/prisma/schema.prisma` change `provider = "sqlite"` → `"postgresql"`, set the connection string as the `DATABASE_URL` env var, and run `npx prisma db push` against it once.
-2. **API env vars (Production)** — set `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` (strong random values, e.g. from `crypto.randomBytes(48).toString('hex')`), `DATABASE_URL`, `CORS_ORIGIN` (the client + web deployment origins), `COOKIE_SECURE=true`, `COOKIE_SAMESITE=none`, `APP_URL`, optional `SMTP_*` (password reset), and `CLOUDINARY_*` (uploads/avatars — `<cloud_name>`, `<api_key>`, `<api_secret>`). A ready-to-edit template with generated secrets lives in the local `server/.env.production` (gitignored, never commit).
-3. **Client app links** — set `VITE_APP_URL` to the deployed `client/` URL in the `web/` project (Production env). The `client/` and `web/` projects' `vercel.json` rewrites keep API calls same-origin, so no `VITE_API_BASE` is needed.
-4. **Deploy order** — deploy `server/` first, then replace the `<api-vercel-domain>`, `<client-vercel-domain>` and `<web-vercel-domain>` placeholders in the `vercel.json` files and env templates with the real deployment URLs.
+## Security
 
-### Vercel limitations to be aware of
+- Role-hierarchy authorization on every protected route (`Viewer < Member < Admin < Owner`)
+- BOLA/IDOR guards on projects, tasks, and attachments — acting on any id requires membership + role
+- Short-lived JWT access tokens + rotating httpOnly refresh cookie with reuse detection
+- Zod validation on all input; Argon2 password hashing; rate-limited auth endpoints
+- Upload hardening: MIME allow-list, magic-byte verification, sanitized filenames, auth-gated serving
 
-- **Realtime notifications:** Socket.IO has no persistent WebSocket transport on serverless functions; HTTP long-polling may work for basic handshakes, but live pushes are not guaranteed. For full realtime, run the `server/` app on a container/VPS (Fly.io, Railway, Render) instead.
-- **Deadline-reminder scheduler:** the in-process `setInterval` doesn't run on serverless. Options: a Vercel Cron calling a scheduled endpoint, or an external cron service.
-- **Uploads/avatars:** serverless disk is ephemeral, so production uses the `cloudinary` storage driver (`STORAGE_DRIVER=cloudinary`). Files stream from memory to Cloudinary, downloads stay auth-gated via a freshly signed URL, and avatars load straight from the CDN. Configure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
-- **Cross-app "Go to dashboard":** the landing page detects the refresh-token cookie. With separate Vercel deployments on distinct `.vercel.app` domains the cookie is not shared, so the landing page shows the standard "Sign in / Get started" CTAs (graceful fallback). For it to switch to "Go to dashboard" across apps, serve both behind one custom domain (e.g. `app.yourdomain.com` + `yourdomain.com`) or deploy client + web into a single origin.
-
----
-
-## Configuration
-
-All settings live in `server/.env` (copy from `server/.env.example`). Never commit real secrets.
-
-| Variable | Purpose |
-| -------- | ------- |
-| `PORT` | API port (default `3000`) |
-| `CLIENT_URL` / `CORS_ORIGIN` | Frontend origins for CORS (defaults `http://localhost:5173,http://localhost:5000`) |
-| `DATABASE_URL` | SQLite file or PostgreSQL connection string |
-| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | Token signing secrets (generate long random values in production) |
-| `ACCESS_TOKEN_TTL` / `REFRESH_TOKEN_TTL` | Token lifetimes (default `15m` / `7d`) |
-| `COOKIE_SECURE` / `COOKIE_SAMESITE` | Refresh-cookie flags (`secure` + `none` in production) |
-| `APP_URL` | Base URL used for password-reset email links |
-| `SMTP_*` | Nodemailer config; leave `SMTP_HOST` empty in dev to log emails to the console |
-| `STORAGE_DRIVER` / `STORAGE_LOCAL_DIR` | `local` filesystem storage (S3-compatible env vars available) |
-| `MAX_UPLOAD_BYTES` | Per-file upload limit (default 10 MB) |
-
-### Production database
-
-Edit `server/.env` and switch to PostgreSQL:
-
-```env
-DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/project_management
-```
-
-The Prisma schema is provider-agnostic; run `npx prisma db push` (or adopt `prisma migrate`) after switching.
-
----
-
-## Scripts
-
-| Command | Where | Description |
-| ------- | ----- | ----------- |
-| `npm run dev` | `server/` | Run API with nodemon + hot reload |
-| `npm start` | `server/` | Run API |
-| `npm test` | `server/` | Run the API test suite (Vitest) |
-| `npm run prisma:push` | `server/` | Sync schema + regenerate client |
-| `npm run prisma:studio` | `server/` | Open Prisma Studio |
-| `npm run dev` | `client/` | Run the workspace dev server |
-| `npm run build` | `client/` | Production build |
-| `npm run lint` | `client/` | ESLint |
-| `npm run dev` | `web/` | Run the landing page dev server |
-| `npm run build` | `web/` | Vite production build |
-| `npm run lint` | `web/` | TypeScript validation |
-
----
-
-## API Overview
-
-```
-auth        /api/v1/auth                 register, login, logout, refresh, password reset
-users       /api/v1/users                profile, avatar, change-password
-projects    /api/v1/projects             CRUD, members/invites/roles, activity, analytics
-boards      /api/v1/projects/:id/boards  columns, reorder, task lists
-tasks       /api/v1/projects/:id/tasks   CRUD, move
-            /api/v1/tasks/:id            standalone item access
-comments    /api/v1/tasks/:id/comments   CRUD
-attachments /api/v1/tasks/:id/attachments  upload (auth-gated download)
-labels      /api/v1/projects/:id/labels  CRUD
-notifications /api/v1/notifications      list, mark read, read-all
-analytics   /api/v1/analytics            dashboard stats, search, calendar
-```
-
-Health check: `GET /health`.
-
----
-
-## Security Model
-
-- Role-hierarchy authorization on every protected route (`VIEWER < MEMBER < ADMIN < OWNER`)
-- BOLA/IDOR guards: acting on a project, task, or attachment by id always requires membership + role
-- Zod validation on all inputs; bounded search length
-- Upload hardening: MIME allow-list + dangerous-type deny-list, magic-byte verification, sanitized filenames, and auth-gated (never static) attachment serving
-- Argon2 password hashing, rotating refresh tokens with reuse detection, rate-limited auth endpoints, and uniform login errors to prevent account enumeration
-
----
+Details in [`docs/security.md`](docs/security.md).
 
 ## Testing
 
-The API ships 60+ automated tests across 7 suites (`server/test/`): authentication, IDOR/BOLA, RBAC, extended BOLA, input validation, and upload security — running against an isolated SQLite database.
-
 ```bash
-cd server && npm test
+cd server && npm test    # Vitest + Supertest — 7 suites, 62 tests
+cd client && npm run lint && npm run build
+cd web    && npm run lint && npm run build
 ```
 
-Client & landing-page verification: `npm run lint` + `npm run build`.
+See [`docs/testing.md`](docs/testing.md) for the full matrix.
 
 ---
 
-## Repository
-
-- Repo: `heyshreee/CodeAlpha_ProjectManagementTool`
-- License: see project files (internship project — internal use unless otherwise licensed)
+*CodeAlpha internship project — internal use unless otherwise licensed. For issues or contributions, open a PR.*
