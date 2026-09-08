@@ -1,3 +1,8 @@
+---
+layout: default
+title: Architecture
+---
+
 # Architecture
 
 > [← Back to documentation](index.md)

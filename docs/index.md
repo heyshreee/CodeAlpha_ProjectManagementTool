@@ -1,3 +1,9 @@
+---
+layout: default
+title: ProjectFlow — Documentation
+permalink: /
+---
+
 # ProjectFlow — Documentation
 
 Welcome to the ProjectFlow documentation. ProjectFlow is a full-stack project-management workspace — kanban task tracking, team roles, real-time collaboration, notifications, and analytics — styled as a fast, compact developer tool (GitHub/Linear-class).

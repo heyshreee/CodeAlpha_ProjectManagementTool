@@ -1,3 +1,8 @@
+---
+layout: default
+title: Workspace — client
+---
+
 # Workspace — client (`client/`)
 
 > [← Back to documentation](index.md)

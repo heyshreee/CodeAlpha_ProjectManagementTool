@@ -1,3 +1,8 @@
+---
+layout: default
+title: Landing page — web
+---
+
 # Landing page — web (`web/`)
 
 > [← Back to documentation](index.md)

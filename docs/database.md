@@ -1,3 +1,8 @@
+---
+layout: default
+title: Database — Prisma schema
+---
+
 # Database — Prisma schema
 
 > [← Back to documentation](index.md)

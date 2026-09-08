@@ -1,3 +1,9 @@
+---
+layout: default
+title: ProjectFlow Documentation
+permalink: /README/
+---
+
 # ProjectFlow Documentation
 
 This page is served by GitHub directly when browsing the `docs/` folder on github.com.

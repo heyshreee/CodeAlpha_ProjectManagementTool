@@ -1,3 +1,8 @@
+---
+layout: default
+title: Security
+---
+
 # Security
 
 > [← Back to documentation](index.md)

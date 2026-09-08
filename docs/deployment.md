@@ -1,3 +1,8 @@
+---
+layout: default
+title: Deployment — Vercel
+---
+
 # Deployment — Vercel
 
 > [← Back to documentation](index.md)

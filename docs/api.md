@@ -1,3 +1,8 @@
+---
+layout: default
+title: API — server
+---
+
 # API — server (`server/`)
 
 > [← Back to documentation](index.md)

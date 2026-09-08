@@ -1,3 +1,8 @@
+---
+layout: default
+title: Testing
+---
+
 # Testing
 
 > [← Back to documentation](index.md)
