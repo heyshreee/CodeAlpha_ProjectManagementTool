@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const prisma = require('../lib/prisma');
 const AppError = require('../lib/AppError');
 const asyncHandler = require('../lib/asyncHandler');
+const cloudinary = require('../lib/cloudinary');
 const { hashPassword, verifyPassword } = require('../utils/password');
 const {
   signAccessToken,
@@ -262,15 +263,38 @@ exports.uploadAvatar = asyncHandler(async (req, res) => {
   }
 
   const current = await prisma.user.findUnique({ where: { id: req.user.id }, select: { avatar: true } });
-  const storedName = `${req.file.filename}`;
-  await prisma.user.update({ where: { id: req.user.id }, data: { avatar: storedName } });
+
+  // `local`: keep the generated filename like today. `cloudinary`: stream from
+  // memory and persist the full secure URL so avatars load straight from the CDN.
+  let storedAvatar;
+  if (env.storage.driver === 'cloudinary') {
+    const IMAGE_EXT = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif' };
+    const ext = IMAGE_EXT[detected] || '.img';
+    const publicId = `avatar-${Date.now()}-${crypto.randomBytes(5).toString('hex')}${ext}`;
+    const result = await cloudinary.uploadBuffer(buffer, { publicId, resourceType: 'image' });
+    storedAvatar = result.secure_url;
+
+    // Best-effort cleanup of the previous avatar on Cloudinary.
+    const oldId = cloudinary.publicIdFromUrl(current && current.avatar);
+    if (oldId) {
+      try {
+        await cloudinary.destroy(oldId, 'image');
+      } catch {
+        /* ignore */
+      }
+    }
+  } else {
+    storedAvatar = req.file.filename;
+  }
+
+  await prisma.user.update({ where: { id: req.user.id }, data: { avatar: storedAvatar } });
 
   // Best-effort cleanup of previous avatar (local driver only).
   if (env.storage.driver === 'local' && current && current.avatar) {
     try {
       const fs = require('fs');
       const oldPath = `${env.storage.localDir}/${current.avatar}`;
-      if (current.avatar !== storedName && fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      if (current.avatar !== storedAvatar && fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     } catch {
       /* ignore */
     }
@@ -279,6 +303,6 @@ exports.uploadAvatar = asyncHandler(async (req, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });
   return res.json({
     success: true,
-    data: { user: publicUser(user), filename: storedName },
+    data: { user: publicUser(user), filename: storedAvatar },
   });
 });

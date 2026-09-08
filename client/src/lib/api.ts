@@ -104,5 +104,8 @@ export async function uploadFile<T>(path: string, file: File, retry = true): Pro
   return (await res.json()).data as T;
 }
 
-export const avatarUrl = (avatar?: string | null) =>
-  avatar ? `/uploads/${avatar}` : undefined;
+export const avatarUrl = (avatar?: string | null) => {
+  if (!avatar) return undefined;
+  // Cloudinary avatars are stored as full URLs; local ones are filenames.
+  return /^https?:\/\//.test(avatar) ? avatar : `/uploads/${avatar}`;
+};

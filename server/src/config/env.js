@@ -18,6 +18,19 @@ function mandatorySecret(key, fallback) {
 const accessSecret = mandatorySecret('JWT_ACCESS_SECRET', 'dev-access-secret-change-me');
 const refreshSecret = mandatorySecret('JWT_REFRESH_SECRET', 'dev-refresh-secret-change-me');
 
+const storageDriver = process.env.STORAGE_DRIVER || 'local';
+const cloudinaryConfig = {
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  apiKey: process.env.CLOUDINARY_API_KEY,
+  apiSecret: process.env.CLOUDINARY_API_SECRET,
+  folder: process.env.CLOUDINARY_FOLDER || 'projectflow',
+};
+if (nodeEnv === 'production' && storageDriver === 'cloudinary') {
+  if (!cloudinaryConfig.cloudName || !cloudinaryConfig.apiKey || !cloudinaryConfig.apiSecret) {
+    throw new Error('CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET must be set when STORAGE_DRIVER=cloudinary');
+  }
+}
+
 module.exports = {
   nodeEnv,
   isProduction: nodeEnv === 'production',
@@ -48,13 +61,14 @@ cookie: {
   },
 
   storage: {
-    driver: process.env.STORAGE_DRIVER || 'local',
+    driver: storageDriver,
     localDir: process.env.STORAGE_LOCAL_DIR || './uploads',
     maxUploadBytes: parseInt(process.env.MAX_UPLOAD_BYTES || String(10 * 1024 * 1024), 10),
     endpoint: process.env.STORAGE_ENDPOINT,
     accessKey: process.env.STORAGE_ACCESS_KEY,
     secretKey: process.env.STORAGE_SECRET_KEY,
     bucket: process.env.STORAGE_BUCKET,
+    cloudinary: cloudinaryConfig,
   },
 
   // Maintained for route use even if the refresh secret is referenced there.

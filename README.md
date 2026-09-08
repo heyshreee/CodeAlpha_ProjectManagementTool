@@ -83,6 +83,7 @@ ProjectFlow is a monorepo with three independent applications:
 | ---------- | ---------- |
 | Frontend   | React 19, TypeScript, Vite, Tailwind CSS v4, React Router 7, TanStack Query, Zustand, dnd-kit, Recharts, socket.io-client |
 | Backend    | Node.js, Express 5, Prisma 6, Socket.IO, zod, argon2, jsonwebtoken, nodemailer, pino, helmet |
+| Storage    | SQLite (dev/CI) — PostgreSQL-ready schema; Cloudinary CDN for uploads/avatars |
 | Database   | SQLite (dev/CI) — PostgreSQL-ready schema |
 | Testing    | Vitest + Supertest (server), TypeScript validation + Vite build (client/web) |
 
@@ -134,6 +135,32 @@ Open three terminals and run the three `npm run dev` commands above:
 | Landing  | http://localhost:5000 |
 | Workspace| http://localhost:5173 |
 | API      | http://localhost:3000 |
+
+---
+
+## Deploying to Vercel
+
+Each app deploys as its **own Vercel project** (monorepo). Create three projects on vercel.com and, for each, set **Root Directory** to the subfolder and paste its environment variables.
+
+| Project (root dir) | Framework | Build command  | Vercel config      |
+| ------------------ | --------- | -------------- | ------------------ |
+| `server/`          | Other     | `npx prisma generate` | `server/vercel.json` + `server/api/index.js` |
+| `client/`          | Vite      | `npm run build` | `client/vercel.json` (rewrites `/api`, `/uploads`, `/socket.io` → API project) |
+| `web/`             | Vite      | `npm run build` | `web/vercel.json` (rewrite `/api` → API project) |
+
+### Required setup checklist
+
+1. **Database** — Vercel serverless can't use the SQLite file. Provision PostgreSQL (Vercel Postgres, Neon, or Supabase), then in `server/prisma/schema.prisma` change `provider = "sqlite"` → `"postgresql"`, set the connection string as the `DATABASE_URL` env var, and run `npx prisma db push` against it once.
+2. **API env vars (Production)** — set `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` (strong random values, e.g. from `crypto.randomBytes(48).toString('hex')`), `DATABASE_URL`, `CORS_ORIGIN` (the client + web deployment origins), `COOKIE_SECURE=true`, `COOKIE_SAMESITE=none`, `APP_URL`, optional `SMTP_*` (password reset), and `CLOUDINARY_*` (uploads/avatars — `<cloud_name>`, `<api_key>`, `<api_secret>`). A ready-to-edit template with generated secrets lives in the local `server/.env.production` (gitignored, never commit).
+3. **Client app links** — set `VITE_APP_URL` to the deployed `client/` URL in the `web/` project (Production env). The `client/` and `web/` projects' `vercel.json` rewrites keep API calls same-origin, so no `VITE_API_BASE` is needed.
+4. **Deploy order** — deploy `server/` first, then replace the `<api-vercel-domain>`, `<client-vercel-domain>` and `<web-vercel-domain>` placeholders in the `vercel.json` files and env templates with the real deployment URLs.
+
+### Vercel limitations to be aware of
+
+- **Realtime notifications:** Socket.IO has no persistent WebSocket transport on serverless functions; HTTP long-polling may work for basic handshakes, but live pushes are not guaranteed. For full realtime, run the `server/` app on a container/VPS (Fly.io, Railway, Render) instead.
+- **Deadline-reminder scheduler:** the in-process `setInterval` doesn't run on serverless. Options: a Vercel Cron calling a scheduled endpoint, or an external cron service.
+- **Uploads/avatars:** serverless disk is ephemeral, so production uses the `cloudinary` storage driver (`STORAGE_DRIVER=cloudinary`). Files stream from memory to Cloudinary, downloads stay auth-gated via a freshly signed URL, and avatars load straight from the CDN. Configure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- **Cross-app "Go to dashboard":** the landing page detects the refresh-token cookie. With separate Vercel deployments on distinct `.vercel.app` domains the cookie is not shared, so the landing page shows the standard "Sign in / Get started" CTAs (graceful fallback). For it to switch to "Go to dashboard" across apps, serve both behind one custom domain (e.g. `app.yourdomain.com` + `yourdomain.com`) or deploy client + web into a single origin.
 
 ---
 

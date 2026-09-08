@@ -4,7 +4,8 @@ const prisma = require('../lib/prisma');
 const AppError = require('../lib/AppError');
 const asyncHandler = require('../lib/asyncHandler');
 const { can } = require('../middleware/authorize');
-const { sanitizeFilename, verifyMagicBytes, ALLOWED_MIME } = require('../middleware/upload');
+const { sanitizeFilename, verifyMagicBytes, ALLOWED_MIME, generateStorageKey } = require('../middleware/upload');
+const cloudinary = require('../lib/cloudinary');
 const env = require('../config/env');
 const { recordActivity } = require('../services/internal');
 const { emitToProject } = require('../lib/realtime');
@@ -43,15 +44,28 @@ exports.upload = asyncHandler(async (req, res) => {
     throw new AppError(400, 'Could not verify file content');
   }
 
+  // Persist the file. `local` writes via multer to disk; `cloudinary` streams
+  // the verified buffer to object storage under a key we control.
+  let storageKey;
+  if (env.storage.driver === 'cloudinary') {
+    const result = await cloudinary.uploadBuffer(buffer, {
+      publicId: generateStorageKey(req.file.originalname),
+      resourceType: cloudinary.resourceTypeFor(req.file.mimetype),
+    });
+    storageKey = result.public_id;
+  } else {
+    storageKey = req.file.filename;
+  }
+
   const attachment = await prisma.attachment.create({
     data: {
       taskId: req.task.id,
       uploaderId: req.user.id,
-      filename: req.file.filename,
+      filename: storageKey,
       originalName: safeName,
       mimeType: req.file.mimetype,
       size: req.file.size,
-      storageKey: req.file.filename,
+      storageKey,
     },
     include: { uploader: { select: { id: true, name: true, avatar: true } } },
   });
@@ -91,8 +105,13 @@ exports.download = asyncHandler(async (req, res) => {
     return fs.createReadStream(filePath).pipe(res);
   }
 
-  // Object-storage driver not configured in this dev environment.
-  throw new AppError(501, 'Download storage driver not configured');
+  // Object-storage driver: membership/role already checked above, so issuing a
+  // freshly signed URL keeps the download auth-gated without proxying bytes.
+  const signedUrl = cloudinary.signedUrl(
+    attachment.storageKey,
+    cloudinary.resourceTypeFor(attachment.mimeType)
+  );
+  return res.redirect(302, signedUrl);
 });
 
 exports.remove = asyncHandler(async (req, res) => {
@@ -107,7 +126,16 @@ exports.remove = asyncHandler(async (req, res) => {
   }
 
   await prisma.attachment.delete({ where: { id: attachmentId } });
-  if (env.storage.driver === 'local') {
+  if (env.storage.driver === 'cloudinary') {
+    try {
+      await cloudinary.destroy(
+        attachment.storageKey,
+        cloudinary.resourceTypeFor(attachment.mimeType)
+      );
+    } catch {
+      /* ignore */
+    }
+  } else if (env.storage.driver === 'local') {
     try {
       const filePath = path.join(env.storage.localDir, attachment.filename);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);

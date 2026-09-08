@@ -71,8 +71,12 @@ function isRejectedFile(file) {
   return false;
 }
 
+// 'memory' and 'cloudinary' drivers both need the raw buffer (multer memory);
+// 'local' writes straight to disk.
+const usesMemory = env.storage.driver === 'memory' || env.storage.driver === 'cloudinary';
+
 let storage;
-if (env.storage.driver === 'memory') {
+if (usesMemory) {
   storage = multer.memoryStorage();
 } else {
   const fs = require('fs');
@@ -122,7 +126,7 @@ const ALLOWED_IMAGE_MIME = new Set(['image/png', 'image/jpeg', 'image/webp', 'im
 const IMAGE_EXT = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif' };
 
 let imageStorage;
-if (env.storage.driver === 'memory') {
+if (usesMemory) {
   imageStorage = multer.memoryStorage();
 } else {
   imageStorage = multer.diskStorage({

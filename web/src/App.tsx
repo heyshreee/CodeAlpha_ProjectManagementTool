@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const appUrl = 'http://localhost:5173';
+const appUrl = import.meta.env.VITE_APP_URL || 'http://localhost:5173';
+const apiBase = import.meta.env.VITE_API_BASE || '/api/v1';
 
 const navLinks = [
   { label: 'Product', href: '#product' },
@@ -162,7 +163,7 @@ export default function App() {
 
   useEffect(() => {
     let active = true;
-    fetch('/api/v1/auth/refresh', {
+    fetch(`${apiBase}/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
     })
